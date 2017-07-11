@@ -6,7 +6,7 @@
   <script src="../paperjs-v0.11.3/dist/paper-full.js"></script>
   <!-- assign.js  if.js    test1-7.js
        fun.js     less.js   unit.js -->
-  <script src="./input/test3.js"></script>
+  <script src="./asts/test3.js"></script>
   <style type="text/css">
   html,
   body {
@@ -76,13 +76,6 @@ var Content = Base.extend({
       cur.fontSize = 15;
       cur.content = ts[i][0];
       cur.fontWeight = 'bold';
-      // if (!prev) {
-      //   cur.bounds.topLeft = start_pt;}
-      // else {
-      //   cur.position = prev.position + 
-      //                  {x:5+ (cur.bounds.width/2)+(prev.bounds.width/2),
-      //                   y:0};}
-
       if (ts[i][1] === 'nt'){
         cur.fillColor = 'red';
         this.nts.push(cur);}
@@ -339,7 +332,7 @@ function drawTree(ast, left, level){
 }
 
 
-drawTree(exp,0,0);
+drawTree(ast,0,0);
 
 
 // function onMouseUp(event){

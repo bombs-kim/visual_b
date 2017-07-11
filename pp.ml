@@ -25,9 +25,9 @@ module B_PP : B_PP_TYPE =
 		match l with 
 		  [] -> [s]
 		| (h :: t) -> 
-			(s ^ "(")
+			("{\"" ^ s ^ "\": " ^ "[")
           		:: (List.fold_left (fun l x -> (comma l) @ (indent x)) (indent h) t)
-          		@ [(")")]
+          		@ [("]}")]
 	let rec id_e (id,e) = (q id)@(pe e)
     and pe e =
         match e with
