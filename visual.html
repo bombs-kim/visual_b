@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <script src="../paperjs-v0.11.3/dist/paper-full.js"></script>
+  <!-- assign.js  if.js    test1-7.js
+       fun.js     less.js   unit.js -->
+  <script src="./input/test3.js"></script>
+  <style type="text/css">
+  html,
+  body {
+      margin: 0;
+      overflow: hidden;
+  }
+
+  /* Scale canvas with resize attribute to full size */
+  canvas[resize] {
+      width: 100%;
+      height: 100%;
+  }
+  </style>
+  <script type="text/paperscript" canvas="myCanvas">
+
+var nextCenter = view.center;
+var prevNodeOutline = null;
+
+var texts = {
+  TRUE: [["true"]],
+  FALSE: [["false"]],
+  UNIT: [["unit"]],
+  NUM: [["num", 'n']],
+  VAR: [["var", "v"]],
+  ADD: [["e", "nt"], ["+"], ["e", "nt"]],
+  SUB: [["e", "nt"], ["-"], ["e", "nt"]],
+  MUL: [["e", "nt"], ["*"], ["e", "nt"]],
+  DIV: [["e", "nt"], ["/"], ["e", "nt"]],
+  EQUAL: [["e", "nt"], ["="], ["e", "nt"]],
+  LESS: [["e", "nt"], ["<"], ["e", "nt"]],
+  NOT: [["not"], ["e", "nt"]],
+  SEQ: [["e", "nt"], [";"], ["e", "nt"]],
+  IF: [["if"], ["e", "nt"], ["then"],
+       ["e", "nt"], ["else"], ["e", "nt"]
+      ],
+  WHILE: [["while"], ["e", "nt"], ["do"], ["e", "nt"]],
+  LETV: [["Let"], ["x", "v"],
+         [":="], ["e", "nt"], ["in"], ["e", "nt"]],
+  // LETF: [["Let"], ["f", "v"], ["v", "(x,y...)"],
+  //        [":="], ["e", "nt"], ["in"], ["e", "nt"]],
+  FIELD: [["e", "nt"], ["."], ["x", "v"]],
+  ASSIGN: [["x", "v"], [":="], ["e", "nt"]],
+  ASSIGNF: [["e", "nt"], ["x", "v"], [":="], ["e", "nt"]],
+  READ: [["READ"], ["x", "v"]],
+  WRITE: [["WRITE"], ["e", "nt"]],
+}
+
+var Content = Base.extend({
+  initialize: function(start_pt, type, vtexts){
+    this.type = type;
+    this.all = [];
+    this.nts = [];   // non terminal contents
+    this.vs = [];    // variables
+    this.nums = [];
+    if (type === "CALLV" || type === "CALLR" ||
+        type === "RECORD" || type === "LETF")
+      var t = vtexts;
+    else
+      var t = texts[type];
+    this.fillContents(start_pt,t);
+    this.updateBounds();
+  },
+  fillContents: function(start_pt, ts){
+    var prev = null;
+    for (var i = 0; i < ts.length; i++){
+      var cur = new PointText();
+      cur.fontSize = 15;
+      cur.content = ts[i][0];
+      cur.fontWeight = 'bold';
+      // if (!prev) {
+      //   cur.bounds.topLeft = start_pt;}
+      // else {
+      //   cur.position = prev.position + 
+      //                  {x:5+ (cur.bounds.width/2)+(prev.bounds.width/2),
+      //                   y:0};}
+
+      if (ts[i][1] === 'nt'){
+        cur.fillColor = 'red';
+        this.nts.push(cur);}
+      if (ts[i][1] === 'v'){
+        cur.fillColor = '#772277';
+        this.vs.push(cur);}
+      if (ts[i][1] === 'n'){
+        cur.fillColor = '#122277';
+        this.nums.push(cur);}
+
+      this.all.push(cur);
+      // prev=cur;
+    }
+    this.update();
+  },
+  // move first text's topLeft
+  moveTo: function(pt){
+    var prev = null;
+    for (var i = 0; i < this.all.length; i++){
+      var cur = this.all[i];
+      if (i == 0){
+        cur.bounds.topLeft = pt;}
+      else {
+        cur.position = prev.position + 
+                       {x:5+ (cur.bounds.width/2)+(prev.bounds.width/2),
+                        y:0};}
+      prev = cur;
+    }    
+    this.updateBounds();
+  },
+  updateBounds: function(){
+    var fb = this.all[0].bounds;
+    var lb = this.all[this.all.length-1].bounds;
+    this.bounds = {};
+    this.bounds.x = fb.x;
+    this.bounds.y = fb.y;
+    this.bounds.width = lb.x - fb.x + lb.width;
+    this.bounds.height = lb.y - fb.y + lb.height;
+  },
+  updatePositions: function(){
+    var prev = null;
+    for (var i = 0; i < this.all.length; i++){
+      var cur = this.all[i];
+      if (i != 0){
+        cur.position = prev.position + 
+                       {x:5+ (cur.bounds.width/2)+(prev.bounds.width/2),
+                        y:0};}
+      prev = cur;
+    }
+  },
+  update: function(){
+    this.updatePositions();
+    this.updateBounds();
+  }
+})
+
+
+var Node = Base.extend({
+  initialize: function(start_pt, type, vtexts) {
+    this.content = new Content(start_pt, type, vtexts);
+    this.children = [];
+    this.edges = [];
+    this.update();
+  },
+  moveTo: function(pt){
+    this.content.moveTo(pt);
+    this.update();
+  },
+  adopt: function(children){
+    if (this.content.nts.length !== children.length){
+      alert("Error: Wrong number of children added");
+      alert("childre lengths:" + this.children.length);
+      alert("nts lengths:" + this.content.nts.length);
+    }
+    
+    for (var i = 0 ; i < children.length; i++){
+      this.children.push(children[i]);
+      var e = new Path.Line([0,0], [0,0]);
+      e.strokeColor = 'black';
+      this.edges.push(e);
+    }
+    this.updateEdges();
+  },
+  setVariable: function(idx, vname){
+    this.content.vs[idx].content = vname;
+    this.update();
+  },
+  setNumber: function(value){
+    if (this.content.type != "NUM"){
+      alert("Error. set number to a non-number type")
+    }
+    this.content.all[0].content = String(value);
+    this.update();
+  },
+  update: function(){
+    this.content.update();
+    this.updateOutline();
+    this.updateEdges();
+    this.bounds = this.content.bounds;
+  },
+  updateOutline: function(){
+    var bounds = this.content.bounds;
+    if (this.outline){
+      this.outline.bounds = {x:bounds.x-3, y:bounds.y-3,
+        width: bounds.width + 6, height: bounds.height+ 6};}
+    else{
+      this.outline = new Path.Rectangle(
+      [bounds.x-3, bounds.y-3], [bounds.width+6, bounds.height+6]);
+      this.outline.strokeColor = '#999999';
+      this.outline.fillColor='#FDFDFD'
+      this.outline.blendMode = 'multiply';}
+      this.outline.smooth({type: 'geometric', factor: 0.1 });
+    this.outline.onClick = function(event){
+      nextCenter = event.point;
+      this.fillColor = '#CCCCFD';
+      if(prevNodeOutline)
+        prevNodeOutline.fillColor = '#FDFDFD';
+      prevNodeOutline = this;
+    }
+  },
+  updateEdges: function(){
+    for (var i = 0; i < this.children.length; i++){
+      var pb = this.content.nts[i].bounds
+      var pbottom = new Point(
+        {x: pb.x + (pb.width/2), y: pb.y + pb.height});
+      var cb = this.children[i].outline.bounds;
+      var ctop = new Point(
+        {x: cb.x + (cb.width/2), y: cb.y});
+      var edge = this.edges[i];
+      edge.segments = []
+      // edge.removeSegment(1);
+      // edge.removeSegment(0);
+      edge.add(pbottom);
+      edge.add(ctop);
+    }
+  },
+  // move first text's topLeft
+  moveTo: function(pt){
+    this.content.moveTo(pt);
+    this.update();
+  }
+});
+
+
+var terminals = ["NUM", "TRUE", "FALSE", "UNIT", "VAR", "READ",
+  "RECORD", "CALLV", "CALLR"];
+var vertical = 40;
+
+function variableText(type, cont){
+  var texts = [];
+  if (type === "CALLV"){
+    texts.push([cont[0], 'v']); // f
+    texts.push(["("]);
+    var args = cont[1]["ARGS"];
+    for (var i = 0; i < args.length; i++){
+      var k = Object.keys(args[i])[0];    // either 'VAR' or 'NUM'
+      texts.push([ args[i][k][0], 'v' ]);
+      if (i < args.length-1) texts.push([',']); }
+    texts.push([")"]);  }       // ), >
+  else if (type === "CALLR"){
+    texts.push([cont[0], 'v']); // f
+    texts.push(["<"]);
+    var args = cont[1]["ARGS"];
+    for (var i = 0; i < args.length; i++){
+      texts.push([ args[i], 'v' ]);
+      if (i < args.length-1) texts.push([',']); }
+    texts.push([">"]);
+  }
+  else if (type === "LETF"){
+    texts.push(["Let"]),
+    texts.push(["proc"]),
+    texts.push([cont[0], "v"]);
+    texts.push(["("]);
+    var args = cont[1]["ARGS"];
+    for (var i = 0; i < args.length; i++){
+      texts.push([ args[i], 'v' ]);
+      if (i < args.length-1) texts.push([',']); 
+    }
+    cont.splice(1,1); // take care
+    texts.push([")"]);
+    texts.push(["="]);
+    texts.push(["e", "nt"]);
+    texts.push(["in"]);
+    texts.push(["e", "nt"]);
+    // LETF: [["Let"], ["f", "v"], ["v", "(x,y...)"],
+    //        [":="], ["e", "nt"],["in"] , ["e", "nt"]],
+  }
+  else if (type === "RECORD"){
+    texts.push(["{"]);
+    for (var i = 0; i < cont.length; i++){
+      // a := 1
+      texts.push([ cont[i][0] ]);
+      texts.push([":="]);
+      texts.push([ String(cont[i][1]["NUM"]),
+                   'n'] );
+    }
+    texts.push(["}"]);  }
+
+  return texts;
+}
+
+function drawTree(ast, left, level){
+  var type = Object.keys(ast)[0];
+  var cont = ast[type]; // array
+  var vtexts = variableText(type, cont);
+  var cur = new Node([0,0], type, vtexts);
+
+  for (var i = 0; i < terminals.length; i++){
+    if (terminals[i] === type){
+      if (type == "NUM")
+        cur.setNumber(cont[0]);
+      if (type == "VAR" || type == "READ"){
+        for (var j = 0; j < cont.length; j++){
+            cur.setVariable(j, cont[j]);}
+        }
+      var w = cur.bounds.width;
+      cur.moveTo([left,level*vertical])
+      return [w+12, cur];
+    }
+  }
+
+  var varCount = 0;
+  var totalWidth = 0;
+  var widths = [];
+  var children = [];
+  for (var i = 0; i < cont.length; i++){
+    if (typeof cont[i] === "string"){
+        cur.setVariable(varCount, cont[i]);
+        varCount++;
+        continue;
+      }
+    var result = drawTree(
+      cont[i], left + totalWidth, level+1);
+    totalWidth += result[0]; // result[0]: width
+    widths.push(result[0]);
+    children.push(result[1]);  // result[1]: new_node
+  }
+  cur.adopt(children)
+
+  var left_added = 0;
+  if ((widths.length % 2) == 0){
+    for (var i = 0; i < (widths.length/2); i++){
+      left_added += widths[i];}
+  }
+  else if(widths.length != 1) {
+    var i = 0;
+    for (; i < Math.floor((widths.length/2)); i++){
+      left_added += widths[i];}
+  }
+
+  cur.moveTo([left + left_added, level*vertical]);
+  var w = Math.max(totalWidth, cur.bounds.width);
+  return [w+12, cur];
+}
+
+
+drawTree(exp,0,0);
+
+
+// function onMouseUp(event){
+//   nextCenter = event.point;
+// }
+
+function onFrame(event){
+  var delta = nextCenter - view.center;
+  _x = Math.round(delta.x/7);
+  _y = Math.round(delta.y/7);
+  view.center = view.center + {x:_x, y:_y};
+}
+
+</script>
+
+</head>
+<body>
+  <canvas id="myCanvas" resize="true"></canvas>
+</body>
+</html>
