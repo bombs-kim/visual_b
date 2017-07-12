@@ -29,7 +29,7 @@
           {"SEQ": [
             {"ASSIGN": [
               "x",
-              ["RECORD"]
+              {"RECORD":[]}
             ]},
             {"ASSIGN": [
               "y",

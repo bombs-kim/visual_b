@@ -23,7 +23,7 @@ module B_PP : B_PP_TYPE =
 		| hd::tl -> (comma (q hd))@(qs tl)
     let ps s l = 
 		match l with 
-		  [] -> ["[\"" ^ s ^ "\"]"]
+		  [] -> ["{\"" ^ s ^ "\":[]}"]
 		| (h :: t) -> 
 			("{\"" ^ s ^ "\": " ^ "[")
           		:: (List.fold_left (fun l x -> (comma l) @ (indent x)) (indent h) t)
