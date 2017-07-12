@@ -13,7 +13,7 @@ The lexer and and parser for the B language were adopted from the PL class and m
 
 ### Compilation and printing parsed tree
 1. make
-2. run examples/test1.k- > ast.js
+2. run examples/test1.b > ast.js
 <br/>
 <br/>
 

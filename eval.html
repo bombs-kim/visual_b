@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <script src="./eval.js"></script>
+  <script
+  src="https://code.jquery.com/jquery-3.2.1.js"
+  integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
+  crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <script>
+
+exp = {"LETV":[
+  "x",
+  {"NUM":[
+    0
+  ]},
+  {"LETV":[
+    "y",
+    {"NUM":[
+      1
+    ]},
+    {"LETV":[
+      "z",
+      {"NUM":[
+        1
+      ]},
+      {"LETV":[
+        "k",
+        {"NUM":[
+          0
+        ]},
+        {"LETV":[
+          "c",
+          {"NUM":[
+            0
+          ]},
+          {"SEQ":[
+            {"READ":[
+              "k"
+            ]},
+            {"WHILE":[
+              {"EQUAL":[
+                {"VAR":[
+                  "c"
+                ]},
+                {"NUM":[
+                  0
+                ]}
+              ]},
+              {"IF":[
+                {"LESS":[
+                  {"VAR":[
+                    "z"
+                  ]},
+                  {"VAR":[
+                    "k"
+                  ]}
+                ]},
+                {"SEQ":[
+                  {"SEQ":[
+                    {"SEQ":[
+                      {"WRITE":[
+                        {"VAR":[
+                          "z"
+                        ]}
+                      ]},
+                      {"ASSIGN":[
+                        "x",
+                        {"VAR":[
+                          "y"
+                        ]}
+                      ]}
+                    ]},
+                    {"ASSIGN":[
+                      "y",
+                      {"VAR":[
+                        "z"
+                      ]}
+                    ]}
+                  ]},
+                  {"ASSIGN":[
+                    "z",
+                    {"ADD":[
+                      {"VAR":[
+                        "x"
+                      ]},
+                      {"VAR":[
+                        "y"
+                      ]}
+                    ]}
+                  ]}
+                ]},
+                {"ASSIGN":[
+                  "c",
+                  {"NUM":[
+                    1
+                  ]}
+                ]}
+              ]}
+            ]}
+          ]}
+        ]}
+      ]}
+    ]}
+  ]}
+]}
+
+
+  result = eval_exp({}, exp);
+  $("body").text("answer is: " + result);
+  </script>
+</body>
+</html>
