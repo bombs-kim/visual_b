@@ -21,9 +21,15 @@ function readText(filePath) {
         reader.onload = function (e) {
             output = e.target.result;
             j = JSON.parse(output);
-            var result = drawTree(j);
-            var width = result[0];
+            j2 = JSON.parse(output);
+            var width_and_tree = drawTree(j);
+            var width = width_and_tree[0];
             moveCenter([width/2, paper.view.size.height/2 - 20]);
+            var result_output = eval(j2);
+            $(".result h4").text(result_output[0] ? result_output[0] : "unit");
+            for (var i = 0; i < result_output[1].length; i++)
+                $("#print table").append(
+                    "<tr><td>" + result_output[1][i] + "</td></tr>")
             // alert(eval_exp({}, j));
         };//end onload()
         reader.readAsText(filePath.files[0]);

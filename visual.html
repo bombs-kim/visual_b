@@ -4,17 +4,19 @@
   <meta charset="UTF-8">
   <title>Document</title>
   <script src="../paperjs-v0.11.3/dist/paper-full.js"></script>
+  <script
+  src="https://code.jquery.com/jquery-3.2.1.min.js"
+  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+  crossorigin="anonymous"></script>
   <style type="text/css">
   html,
   body {
       margin: 0;
-      overflow: hidden;
-  }
+      overflow: hidden;}
   /* Scale canvas with resize attribute to full size */
   canvas[resize] {
       width: 70%;
-      height: 70%;
-  }
+      height: 70%;}
   </style>
   <script type="text/paperscript" canvas="myCanvas">
 
@@ -82,7 +84,6 @@ var Content = Base.extend({
         this.nums.push(cur);}
 
       this.all.push(cur);
-      // prev=cur;
     }
     this.update();
   },
@@ -97,8 +98,7 @@ var Content = Base.extend({
         cur.position = prev.position + 
                        {x:5+ (cur.bounds.width/2)+(prev.bounds.width/2),
                         y:0};}
-      prev = cur;
-    }    
+      prev = cur;}    
     this.updateBounds();
   },
   updateBounds: function(){
@@ -118,8 +118,7 @@ var Content = Base.extend({
         cur.position = prev.position + 
                        {x:5+ (cur.bounds.width/2)+(prev.bounds.width/2),
                         y:0};}
-      prev = cur;
-    }
+      prev = cur;}
   },
   update: function(){
     this.updatePositions();
@@ -151,7 +150,6 @@ var Node = Base.extend({
       alert("childre lengths:" + this.children.length);
       alert("nts lengths:" + this.content.nts.length);
     }
-    
     for (var i = 0 ; i < children.length; i++){
       this.children.push(children[i]);
       var e = new Path.Line([0,0], [0,0]);
@@ -291,6 +289,7 @@ function _drawTree(ast, left, level){
   var cont = ast[type]; // array
   var vtexts = variableText(type, cont);
   var cur = new Node([0,0], type, vtexts);
+  // console.log(type)
 
   for (var i = 0; i < terminals.length; i++){
     if (terminals[i] === type){
@@ -305,7 +304,6 @@ function _drawTree(ast, left, level){
       return [w+12, cur];
     }
   }
-
   var varCount = 0;
   var totalWidth = 0;
   var widths = [];
@@ -383,22 +381,29 @@ window.zoom = function(z){
 <script src="filereader.js"></script>
 </head>
 <style>
-  #container div {
+  #control div {
     margin: 10px;
   }
 </style>
 <body onload="checkFileAPI();" style="text-align: center;">
-  <div id="container" style="position:fixed; top: 30px; left: 30px; text-align: left; ">
+  <div id="control" style="position:fixed; top: 30px; left: 30px; text-align: left; ">
       <div><input type="file" onchange='readText(this)'/></div>
       <div><button type="button" onclick='zoom(1)'>Zoom in</button></div>
       <div><button type="button" onclick='zoom(-1)'>Zoom out</button></div>
+  </div>
+  <div id="print" style="position:fixed; top: 30px; right: 30px;">
+    <h3>Print<br>(Side effects)</h3>
+    <table>
+      
+    </table>
   </div>
   <div class="ast">
     <h3> Abstract Syntax Tree for B language </h3>
   </div>
   <canvas id="myCanvas" resize="true"></canvas>
   <div class="result">
-    <h3> Execution Result </h3>
+    <h3> Meaning of your Program<br>(Execution Result) </h3>
+    <h4></h4>
   </div>
 </body>
 </html>

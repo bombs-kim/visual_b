@@ -95,7 +95,7 @@ function eval_exp(env, e){
         mem[nl] = v;
         return eval_exp(get_updated_env(x,nl,env), cont[2]);
 
-    case "LEFT":
+    case "LETF":
         var fname = cont[0];
         var argnames = cont[1];
         var e1 = cont[2];
@@ -169,19 +169,26 @@ function eval_exp(env, e){
         return v;
     case "READ":
         var x = cont[0];
-        var v = input();
-        alert("input is " + v);
+        var v = input("Enter value of " + cont[0] + "\n(in an integer)");
         mem[env[x]] = v;
         return v;
     case "WRITE":
         var n = eval_exp(env, cont[0]);
-        console.log(n);
+        // console.log(n);
+        output.push(n);
         return n;
     }
 }
 
-function input(){
-    return Number(prompt());
+var output;
+function eval(e){
+    output = [];
+    var ret = eval_exp({}, e);
+    return [ret, output];
+}
+
+function input(msg){
+    return Number(prompt(msg));
 }
 
 
