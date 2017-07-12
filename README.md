@@ -21,6 +21,11 @@ Visualizer and Interpreter
 ------------
 Visualizer and Interpreter were impleneted in Javscript. Javascript have many good visulization libraries and I chose paperjs. paperjs goes with the least amount of boilerplate code and allows me the maximum customization. I wanted to intermingle the visulizer and the interpreter in one implemtation and paperjs was right fit for me.
 
+The visualizer is embedded in visual.html file. The Interpreter as contained in a separate file named eval.js. To run them, just open visual.html with a browser and choose JSON file generated with the lexer and parser.
+</br>
+<div style="text-align: center; font-weight:bold">Screen shot
+<img src="screenshot.png">
+</div>
 <br/>
 <br/>
 
