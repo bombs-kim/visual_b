@@ -427,6 +427,10 @@ window.zoom = function(z){
   #control div {
     margin: 10px;
   }
+  /*#myCanvas {
+    width: %;
+    height: 65%;
+  }*/
 </style>
 <body onload="checkFileAPI();" style="text-align: center;">
   <div id="control" style="position:fixed; top: 30px; left: 30px; text-align: left; ">
@@ -434,19 +438,22 @@ window.zoom = function(z){
       <div><button type="button" onclick='zoom(1)'>Zoom in</button></div>
       <div><button type="button" onclick='zoom(-1)'>Zoom out</button></div>
   </div>
-  <div id="print" style="position:fixed; top: 30px; right: 30px;">
-    <h3>Printed<br>(Side effects)</h3>
+  <div id="print" style="position:fixed; top: 10%; right: 10%">
+    <h3 >Printed<br>(Side effects)</h3>
     <table>
       
     </table>
+    <div class="result" style="position:fixed;
+    width: 250px; bottom:10%; right:5%">
+    <h3> Meaning of your Program<br>(Execution Result) </h3>
+    <h4 id="r"></h4>
+    </div>
+  </div>
   </div>
   <div class="ast">
     <h3> Abstract Syntax Tree for B language </h3>
-  </div>
+  
   <canvas id="myCanvas" resize="true"></canvas>
-  <div class="result">
-    <h3> Meaning of your Program<br>(Execution Result) </h3>
-    <h4></h4>
-  </div>
+  
 </body>
 </html>

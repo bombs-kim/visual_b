@@ -28,7 +28,7 @@ function readText(filePath) {
             $("#print table").empty();
             j2 = JSON.parse(output);
             var result_output = eval(j2);
-            $(".result h4").text(result_output[0] ? result_output[0] : "unit");
+            $(".result h4#r").text(result_output[0] ? result_output[0] : "unit");
             for (var i = 0; i < result_output[1].length; i++)
                 $("#print table").append(
                     "<tr><td>" + result_output[1][i] + "</td></tr>")
