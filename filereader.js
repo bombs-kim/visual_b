@@ -23,7 +23,7 @@ function readText(filePath) {
             j = JSON.parse(output);
             var width_and_tree = drawTree(j);
             var width = width_and_tree[0];
-            moveCenter([width/2, paper.view.size.height/2 - 20]);
+            moveCenterTo2([width/2, paper.view.size.height/2 - 20]);
 
             $("#print table").empty();
             j2 = JSON.parse(output);
