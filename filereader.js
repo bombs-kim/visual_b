@@ -21,10 +21,12 @@ function readText(filePath) {
         reader.onload = function (e) {
             output = e.target.result;
             j = JSON.parse(output);
-            j2 = JSON.parse(output);
             var width_and_tree = drawTree(j);
             var width = width_and_tree[0];
             moveCenter([width/2, paper.view.size.height/2 - 20]);
+
+            $("#print table").empty();
+            j2 = JSON.parse(output);
             var result_output = eval(j2);
             $(".result h4").text(result_output[0] ? result_output[0] : "unit");
             for (var i = 0; i < result_output[1].length; i++)

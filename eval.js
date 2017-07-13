@@ -48,6 +48,7 @@ function eval_exp(env, e){
         var bop = get_bop(type);
         var n1 = eval_exp(env, cont[0]);
         var n2 = eval_exp(env, cont[1]);
+        console.log("n1, n2:", n1, n2);
         console.assert(typeof n1 === "number" && typeof n2 === "number");
         return bop(n1,n2);
     case "EQUAL":
@@ -91,14 +92,15 @@ function eval_exp(env, e){
     case "LETV":
         var x = cont[0];
         var v = eval_exp(env, cont[1]);
+        console.log(x, v)
         var nl = new_loc();
         mem[nl] = v;
         return eval_exp(get_updated_env(x,nl,env), cont[2]);
 
     case "LETF":
         var fname = cont[0];
-        var argnames = cont[1];
-        var e1 = cont[2];
+        var argnames = cont[1]["ARGS"];
+        var e1 = cont[2]
         var fbody = [argnames,e1,env];
         return eval_exp(
                     get_updated_env(fname, fbody, env),
@@ -175,16 +177,16 @@ function eval_exp(env, e){
     case "WRITE":
         var n = eval_exp(env, cont[0]);
         // console.log(n);
-        output.push(n);
+        printed.push(n);
         return n;
     }
 }
 
-var output;
+var printed;
 function eval(e){
-    output = [];
+    printed = [];
     var ret = eval_exp({}, e);
-    return [ret, output];
+    return [ret, printed];
 }
 
 function input(msg){

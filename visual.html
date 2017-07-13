@@ -44,6 +44,10 @@ var texts = {
   WHILE: [["while"], ["e", "nt"], ["do"], ["e", "nt"]],
   LETV: [["Let"], ["x", "v"],
          [":="], ["e", "nt"], ["in"], ["e", "nt"]],
+  LETF: [["Let"], ["proc"], ["f", "v"], ["("], ["args", "nt"], [")"],
+         ["="], ["e", "nt"], ["in"], ["e", "nt"]],
+  CALLV: [["f", "v"], ["("], ["args", "nt"], [")"]],
+  CALLR: [["f", "v"], ["<"], ["args", "nt"], [">"]],
   FIELD: [["e", "nt"], ["."], ["x", "v"]],
   ASSIGN: [["x", "v"], [":="], ["e", "nt"]],
   ASSIGNF: [["e", "nt"], ["x", "v"], [":="], ["e", "nt"]],
@@ -58,11 +62,12 @@ var Content = Base.extend({
     this.nts = [];   // non terminal contents
     this.vs = [];    // variables
     this.nums = [];
-    if (type === "CALLV" || type === "CALLR" ||
-        type === "RECORD" || type === "LETF")
+    if (type === "ARGS" || type === "RECORD" )
       var t = vtexts;
-    else
+    else{
       var t = texts[type];
+    }
+    
     this.fillContents(start_pt,t);
     this.updateBounds();
   },
@@ -228,69 +233,103 @@ var Node = Base.extend({
 
 
 var terminals = ["NUM", "TRUE", "FALSE", "UNIT", "VAR", "READ",
-  "RECORD", "CALLV", "CALLR"];
+  "RECORD", "CALLR"];
 var vertical = 40;
 
+function isTerminal(type){
+  var ret = false
+  for (var i = 0; i < terminals.length; i++)
+    if(terminals[i] === type)
+      ret = true;
+  return ret;
+}
+
 function variableText(type, cont){
-  var texts = [];
-  if (type === "CALLV"){
-    texts.push([cont[0], 'v']); // f
-    texts.push(["("]);
-    var args = cont[1]["ARGS"];
-    for (var i = 0; i < args.length; i++){
-      var k = Object.keys(args[i])[0];    // either 'VAR' or 'NUM'
-      texts.push([ args[i][k][0], 'v' ]);
-      if (i < args.length-1) texts.push([',']); }
-    texts.push([")"]);  }       // ), >
-  else if (type === "CALLR"){
-    texts.push([cont[0], 'v']); // f
-    texts.push(["<"]);
-    var args = cont[1]["ARGS"];
-    for (var i = 0; i < args.length; i++){
-      texts.push([ args[i], 'v' ]);
-      if (i < args.length-1) texts.push([',']); }
-    texts.push([">"]);
-  }
-  else if (type === "LETF"){
-    texts.push(["Let"]),
-    texts.push(["proc"]),
-    texts.push([cont[0], "v"]);
-    texts.push(["("]);
-    var args = cont[1]["ARGS"];
-    for (var i = 0; i < args.length; i++){
-      texts.push([ args[i], 'v' ]);
-      if (i < args.length-1) texts.push([',']); 
+  // var texts = [];
+  // if (type === "CALLV"){
+  //   texts.push([cont[0], 'v']); // f
+  //   texts.push(["("]);
+  //   var args = cont[1]["ARGS"];
+  //   for (var i = 0; i < args.length; i++){
+  //     var k = Object.keys(args[i])[0];
+  //     if (isTerminal(k)){
+  //         texts.push([ args[i][k][0], 'v' ]);}
+  //     else{
+  //       texts.push(['e','nt']);}
+  //     if (i < args.length-1) texts.push([',']);
+  //   }
+  //   texts.push([")"]);  }       // ), >
+  // else if (type === "CALLR"){
+  //   texts.push([cont[0], 'v']); // f
+  //   texts.push(["<"]);
+  //   var args = cont[1]["ARGS"];
+  //   for (var i = 0; i < args.length; i++){
+  //     texts.push([ args[i], 'v' ]);
+  //     if (i < args.length-1) texts.push([',']); }
+  //   texts.push([">"]);
+  // }
+  // else if (type === "LETF"){
+  //   texts.push(["Let"]),
+  //   texts.push(["proc"]),
+  //   texts.push([cont[0], "v"]);
+  //   texts.push(["("]);
+  //   var args = cont[1]["ARGS"];
+  //   for (var i = 0; i < args.length; i++){
+  //     texts.push();
+  //     if (i < args.length-1) texts.push([',']); 
+  //   }
+  //   cont.splice(1,1); // take care
+  //   texts.push([")"]);
+  //   texts.push(["="]);
+  //   texts.push(["e", "nt"]);
+  //   texts.push(["in"]);
+  //   texts.push(["e", "nt"]);
+  // }
+  var vtexts = [];
+  if (type === "ARGS"){
+    if (cont.length >= 1){
+      // In case of LETF or call by value
+      // contents are not expressions
+      if (typeof cont[0] === "string"){
+        vtexts.push(["x", "v"]);
+        for (var i = 1; i < cont.length; i++){
+          vtexts.push([","]);
+          vtexts.push(["x", "v"]);
+        }
+      } 
+      // In case of LETV,
+      // contents will be evaluated later on
+      else{
+        vtexts.push(["e", "nt"]);
+        for (var i = 1; i < cont.length; i++){
+          vtexts.push([","]);
+          vtexts.push(["e", "nt"]);
+        }
+      }
     }
-    cont.splice(1,1); // take care
-    texts.push([")"]);
-    texts.push(["="]);
-    texts.push(["e", "nt"]);
-    texts.push(["in"]);
-    texts.push(["e", "nt"]);
-    // LETF: [["Let"], ["f", "v"], ["v", "(x,y...)"],
-    //        [":="], ["e", "nt"],["in"] , ["e", "nt"]],
   }
   else if (type === "RECORD"){
-    texts.push(["{"]);
+    vtexts.push(["{"]);
     for (var i = 0; i < cont.length; i++){
-      // a := 1
-      texts.push([ cont[i][0] ]);
-      texts.push([":="]);
-      texts.push([ String(cont[i][1]["NUM"]),
+      // ex) a := 1
+      vtexts.push([ cont[i][0] ]);
+      vtexts.push([":="]);
+      vtexts.push([ String(cont[i][1]["NUM"]),
                    'n'] );
     }
-    texts.push(["}"]);  }
+    vtexts.push(["}"]);  }
 
-  return texts;
+  return vtexts;
 }
 
 function _drawTree(ast, left, level){
   var type = Object.keys(ast)[0];
   var cont = ast[type]; // array
   var vtexts = variableText(type, cont);
+  console.log(texts[type]);
+  console.log(vtexts);
   var cur = new Node([0,0], type, vtexts);
-  // console.log(type)
-
+  console.log(type + " start")
   for (var i = 0; i < terminals.length; i++){
     if (terminals[i] === type){
       if (type == "NUM")
@@ -304,22 +343,26 @@ function _drawTree(ast, left, level){
       return [w+12, cur];
     }
   }
+  console.log(cont)
   var varCount = 0;
   var totalWidth = 0;
   var widths = [];
   var children = [];
   for (var i = 0; i < cont.length; i++){
     if (typeof cont[i] === "string"){
-        cur.setVariable(varCount, cont[i]);
-        varCount++;
+      if (type !== "CALLV")
         continue;
-      }
+      cur.setVariable(varCount, cont[i]);
+      varCount++;
+      continue;
+    }
     var result = _drawTree(
       cont[i], left + totalWidth, level+1);
     totalWidth += result[0]; // result[0]: width
     widths.push(result[0]);
     children.push(result[1]);  // result[1]: new_node
   }
+    console.log(type)
   cur.adopt(children)
 
   var left_added = 0;
@@ -392,7 +435,7 @@ window.zoom = function(z){
       <div><button type="button" onclick='zoom(-1)'>Zoom out</button></div>
   </div>
   <div id="print" style="position:fixed; top: 30px; right: 30px;">
-    <h3>Print<br>(Side effects)</h3>
+    <h3>Printed<br>(Side effects)</h3>
     <table>
       
     </table>
