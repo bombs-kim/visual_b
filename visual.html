@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Document</title>
-  <script src="../paperjs-v0.11.3/dist/paper-full.js"></script>
+  <script src="paperjs-v0.11.4/dist/paper-full.js"></script>
   <script
   src="https://code.jquery.com/jquery-3.2.1.min.js"
   integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
@@ -15,14 +15,15 @@
       overflow: hidden;}
   /* Scale canvas with resize attribute to full size */
   canvas[resize] {
-      width: 70%;
-      height: 70%;}
+      width: 90%;
+      height: 90%;}
   </style>
   <script type="text/paperscript" canvas="myCanvas">
 
 var nextCenter = view.center;
 var nextZoom = view.zoom;
 var prevNodeOutline = null;
+var prevExecutedNode = null;
 
 var texts = {
   TRUE: [["true"]],
@@ -141,6 +142,7 @@ var Content = Base.extend({
 var Node = Base.extend({
   initialize: function(start_pt, type, vtexts) {
     this.content = new Content(start_pt, type, vtexts);
+    this.type = type;
     this.children = [];
     this.edges = [];
     this.update();
@@ -153,14 +155,13 @@ var Node = Base.extend({
     if (this.content.nts.length !== children.length){
       alert("Error: Wrong number of children added");
       alert("childre lengths:" + this.children.length);
-      alert("nts lengths:" + this.content.nts.length);
-    }
+      alert("nts lengths:" + this.content.nts.length);}
     for (var i = 0 ; i < children.length; i++){
       this.children.push(children[i]);
+      children[i].parent = this;
       var e = new Path.Line([0,0], [0,0]);
       e.strokeColor = 'black';
-      this.edges.push(e);
-    }
+      this.edges.push(e);}
     this.updateEdges();
   },
   setVariable: function(idx, vname){
@@ -192,13 +193,7 @@ var Node = Base.extend({
       this.outline.fillColor='#FDFDFD'
       this.outline.blendMode = 'multiply';}
       this.outline.smooth({type: 'geometric', factor: 0.1 });
-    this.outline.onClick = function(event){
-      nextCenter = event.point;
-      this.fillColor = '#CCCCFD';
-      if(prevNodeOutline)
-        prevNodeOutline.fillColor = '#FDFDFD';
-      prevNodeOutline = this;
-    }
+    this.outline.onClick = moveCenterToThis
   },
   updateEdges: function(){
     for (var i = 0; i < this.children.length; i++){
@@ -326,8 +321,6 @@ function _drawTree(ast, left, level){
   var type = Object.keys(ast)[0];
   var cont = ast[type]; // array
   var vtexts = variableText(type, cont);
-  console.log(texts[type]);
-  console.log(vtexts);
   var cur = new Node([0,0], type, vtexts);
   console.log(type + " start")
   for (var i = 0; i < terminals.length; i++){
@@ -343,7 +336,6 @@ function _drawTree(ast, left, level){
       return [w+12, cur];
     }
   }
-  console.log(cont)
   var varCount = 0;
   var totalWidth = 0;
   var widths = [];
@@ -362,7 +354,6 @@ function _drawTree(ast, left, level){
     widths.push(result[0]);
     children.push(result[1]);  // result[1]: new_node
   }
-    console.log(type)
   cur.adopt(children)
 
   var left_added = 0;
@@ -375,6 +366,8 @@ function _drawTree(ast, left, level){
     for (; i < Math.floor((widths.length/2)); i++){
       left_added += widths[i];}
   }
+
+  console.log(type, " end")
 
   cur.moveTo([left + left_added, level*vertical]);
   var w = Math.max(totalWidth, cur.bounds.width);
@@ -394,6 +387,7 @@ function drawTree(ast){
     removeTree(curTree);
   var result = _drawTree(ast, 0, 0);
   window.curTree = result[1];
+  curTree.parent = null;
   return result;
 }
 
@@ -408,6 +402,51 @@ function onFrame(event){
     view.zoom = view.zoom + delta;
 }
 
+function moveCenterToThis(event){
+  nextCenter = event.point;
+  this.fillColor = '#CCCCFD';
+  if (prevNodeOutline)
+    prevNodeOutline.fillColor = '#FDFDFD';
+  prevNodeOutline = this;
+}
+
+function moveCenterTo1(nodeOutline){
+  nextCenter = nodeOutline.position;
+  nodeOutline.fillColor = '#CCCCFD';
+  if (prevNodeOutline)
+    prevNodeOutline.fillColor = '#FDFDFD';
+  prevNodeOutline = nodeOutline; 
+}
+
+function traverse(){
+  if (!curTree)
+    return;
+  if (!prevExecutedNode){
+    childrenCount=0;
+    prevExecutedNode = curTree;
+    // prevExecutedNode.cTravCnt = 0;
+    moveCenterTo1(prevExecutedNode.outline);
+    return;  }
+  var prev = prevExecutedNode;
+  if (!prev.cTravCnt)
+    prev.cTravCnt = 0;
+  if (prev.cTravCnt >= prev.children.length){
+    if (prev.cTravCnt > prev.children.length)
+      alert("Error");
+    if (prev.parent)
+      moveCenterTo1(prev.parent.outline);
+    prevExecutedNode = prev.parent;
+    prev.cTravCnt = 0;
+    console.log("inIf cur ", prev.parent)
+    return;  }
+  else {
+    var cur = prev.children[prev.cTravCnt];
+    console.log("inElse cur ", cur)
+    moveCenterTo1(cur.outline);
+    prev.cTravCnt++;
+    prevExecutedNode = cur;  }
+}
+
 zooms = {0.25:{1:0.5, "-1":0.25},0.5: {1:1, "-1":0.25},
             1:{1:2, "-1":0.5}, 2:{1:3, "-1":1}, 
             3:{1:4, "-1":2}, 4:{1:4, "-1":3}}
@@ -415,7 +454,8 @@ zooms = {0.25:{1:0.5, "-1":0.25},0.5: {1:1, "-1":0.25},
 window.curTree = null;
 window.drawTree = drawTree;
 window.removeTree= removeTree;
-window.moveCenter = function(coord){nextCenter=new Point(coord)};
+window.traverse = traverse
+window.moveCenterTo2 = function(coord){nextCenter=new Point(coord)};
 window.zoom = function(z){
   nextZoom = zooms[nextZoom][z];
 };
@@ -427,16 +467,13 @@ window.zoom = function(z){
   #control div {
     margin: 10px;
   }
-  /*#myCanvas {
-    width: %;
-    height: 65%;
-  }*/
 </style>
 <body onload="checkFileAPI();" style="text-align: center;">
   <div id="control" style="position:fixed; top: 30px; left: 30px; text-align: left; ">
       <div><input type="file" onchange='readText(this)'/></div>
       <div><button type="button" onclick='zoom(1)'>Zoom in</button></div>
       <div><button type="button" onclick='zoom(-1)'>Zoom out</button></div>
+      <div><button type="button" onclick='traverse()'>execute</button></div>
   </div>
   <div id="print" style="position:fixed; top: 10%; right: 10%">
     <h3 >Printed<br>(Side effects)</h3>
