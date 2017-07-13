@@ -2,14 +2,14 @@
 
 About this project
 -------------------
-This project is based on the programming language theory class COSE212, Fall 2015 by Hakjoo Oh. I implemented a programming language called B with Ocaml in that class. B language is a small subset of C, which is why it was named so. But, it has a bit of Ocaml's tidy tastes, too. You can find the language's formal syntax and semantics in class_project.pdf file.
-After taking compiler's class in the previous semester, I decided to recap what I learned in the PL class and complete my understanding of programming language intepretation in a formal and abstract way. In this project, I aim to visualize full exeuction paths of programs written in B, as well as interpreting(or executing) them.
+This project is based on the Programming Language Theory class COSE212, Fall 2015 by Professor Hakjoo Oh. I implemented a programming language called B with Ocaml in that class. B language is a small subset of C, which is why it was named so. But, it has a bit of Ocaml's tidy tastes, too. You can find the language's formal syntax and semantics in class_project.pdf file.
+After taking compiler's class in the previous semester, I decided to recap what I learned in the PL class and complete my understanding of programming language interpretation in a formal and abstract way. In this project, I aim to visualize full execution paths of programs written in B, as well as interpreting(or executing) them.
 <br/>
 <br/>
 
 Lexer and Parser
 -----------------
-The lexer and and parser for the B language were adopted from the PL class and moderetly modified. Implemation was done by ocamllex and ocamalyacc, which are speciailzed tools desigend for lexing and parsing. Running the program `run` prints parsed tree in valid JSON format to the standard output. This will be the input for the visualizer, later.
+The lexer and parser for the B language were adopted from the PL class and moderetly modified. Implementation was done by ocamllex and ocamalyacc, which are specialized tools designed for lexing and parsing. Running the program `run` prints parsed tree in valid JSON format to the standard output. This will be the input for the visualizer, later.
 
 ### Compilation and printing parsed tree
 1. make
