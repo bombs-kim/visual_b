@@ -307,7 +307,7 @@ function variableText(type, cont){
     vtexts.push(["{"]);
     for (var i = 0; i < cont.length; i++){
       // ex) a := 1
-      vtexts.push([ cont[i][0] ]);
+      vtexts.push([ cont[i][0], "v" ]);
       vtexts.push([":="]);
       vtexts.push([ String(cont[i][1]["NUM"]),
                    'n'] );
@@ -467,8 +467,9 @@ window.zoom = function(z){
 </head>
 <style>
   #control div {
-    margin: 10px;
-  }
+    margin: 10px;  }
+  table {
+    margin: auto; }
 </style>
 <body onload="checkFileAPI();" style="text-align: center;">
   <div id="control" style="position:fixed; top: 30px; left: 30px; text-align: left; ">
@@ -480,7 +481,6 @@ window.zoom = function(z){
   <div id="print" style="position:fixed; top: 10%; right: 10%">
     <h3 >Printed<br>(Side effects)</h3>
     <table>
-      
     </table>
     <div class="result" style="position:fixed;
     width: 250px; bottom:10%; right:5%">
