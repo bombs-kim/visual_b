@@ -28,7 +28,10 @@ module B_PP : B_PP_TYPE =
 			("{\"" ^ s ^ "\": " ^ "[")
           		:: (List.fold_left (fun l x -> (comma l) @ (indent x)) (indent h) t)
           		@ [("]}")]
-	let rec id_e (id,e) = (q id)@(pe e)
+  let rec concat = fun l->  match l with
+    [] -> ""
+    |hd::tl -> hd ^ (concat tl)
+	let rec id_e (id,e) = [concat (["[\""; id; "\","] @(pe e)@["]"])]
     and pe e =
         match e with
           NUM i -> ps "NUM" [[string_of_int i]]
