@@ -228,7 +228,7 @@ var Node = Base.extend({
 
 
 var terminals = ["NUM", "TRUE", "FALSE", "UNIT", "VAR", "READ",
-  "RECORD", "CALLR"];
+  "RECORD"];
 var vertical = 40;
 
 function isTerminal(type){
@@ -341,10 +341,12 @@ function _drawTree(ast, left, level){
   var widths = [];
   var children = [];
   for (var i = 0; i < cont.length; i++){
+    console.log("children", typeof cont[i]);
     if (typeof cont[i] === "string"){
-      if (type !== "CALLV")
-        continue;
+      // if (type !== "CALLV")
+      //   continue;
       cur.setVariable(varCount, cont[i]);
+      console.log("set ",cur,"to",cont[i]);
       varCount++;
       continue;
     }
