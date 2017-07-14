@@ -51,7 +51,7 @@ var texts = {
   CALLR: [["f", "v"], ["<"], ["args", "nt"], [">"]],
   FIELD: [["e", "nt"], ["."], ["x", "v"]],
   ASSIGN: [["x", "v"], [":="], ["e", "nt"]],
-  ASSIGNF: [["e", "nt"], ["x", "v"], [":="], ["e", "nt"]],
+  ASSIGNF: [["e", "nt"], ["."], ["x", "v"], [":="], ["e", "nt"]],
   READ: [["READ"], ["x", "v"]],
   WRITE: [["WRITE"], ["e", "nt"]],
 }
@@ -66,9 +66,7 @@ var Content = Base.extend({
     if (type === "ARGS" || type === "RECORD" )
       var t = vtexts;
     else{
-      var t = texts[type];
-    }
-    
+      var t = texts[type]; }
     this.fillContents(start_pt,t);
     this.updateBounds();
   },
@@ -89,8 +87,7 @@ var Content = Base.extend({
         cur.fillColor = '#122277';
         this.nums.push(cur);}
 
-      this.all.push(cur);
-    }
+      this.all.push(cur);  }
     this.update();
   },
   // move first text's topLeft
@@ -124,7 +121,7 @@ var Content = Base.extend({
         cur.position = prev.position + 
                        {x:5+ (cur.bounds.width/2)+(prev.bounds.width/2),
                         y:0};}
-      prev = cur;}
+      prev = cur;  }
   },
   update: function(){
     this.updatePositions();
@@ -133,8 +130,12 @@ var Content = Base.extend({
   clear: function(){
     var all = this.all;
     for (var i = 0; i < all.length; i++){
-      all[i].remove();
-    }
+      all[i].remove();  }
+  },
+  hide: function(){
+    var all = this.all;
+    for (var i = 0; i < all.length; i++){
+      all[i].setVisible(false);  }
   }
 })
 
@@ -240,46 +241,6 @@ function isTerminal(type){
 }
 
 function variableText(type, cont){
-  // var texts = [];
-  // if (type === "CALLV"){
-  //   texts.push([cont[0], 'v']); // f
-  //   texts.push(["("]);
-  //   var args = cont[1]["ARGS"];
-  //   for (var i = 0; i < args.length; i++){
-  //     var k = Object.keys(args[i])[0];
-  //     if (isTerminal(k)){
-  //         texts.push([ args[i][k][0], 'v' ]);}
-  //     else{
-  //       texts.push(['e','nt']);}
-  //     if (i < args.length-1) texts.push([',']);
-  //   }
-  //   texts.push([")"]);  }       // ), >
-  // else if (type === "CALLR"){
-  //   texts.push([cont[0], 'v']); // f
-  //   texts.push(["<"]);
-  //   var args = cont[1]["ARGS"];
-  //   for (var i = 0; i < args.length; i++){
-  //     texts.push([ args[i], 'v' ]);
-  //     if (i < args.length-1) texts.push([',']); }
-  //   texts.push([">"]);
-  // }
-  // else if (type === "LETF"){
-  //   texts.push(["Let"]),
-  //   texts.push(["proc"]),
-  //   texts.push([cont[0], "v"]);
-  //   texts.push(["("]);
-  //   var args = cont[1]["ARGS"];
-  //   for (var i = 0; i < args.length; i++){
-  //     texts.push();
-  //     if (i < args.length-1) texts.push([',']); 
-  //   }
-  //   cont.splice(1,1); // take care
-  //   texts.push([")"]);
-  //   texts.push(["="]);
-  //   texts.push(["e", "nt"]);
-  //   texts.push(["in"]);
-  //   texts.push(["e", "nt"]);
-  // }
   var vtexts = [];
   if (type === "ARGS"){
     if (cont.length >= 1){
@@ -289,8 +250,7 @@ function variableText(type, cont){
         vtexts.push(["x", "v"]);
         for (var i = 1; i < cont.length; i++){
           vtexts.push([","]);
-          vtexts.push(["x", "v"]);
-        }
+          vtexts.push(["x", "v"]);  }
       } 
       // In case of LETV,
       // contents will be evaluated later on
@@ -298,10 +258,8 @@ function variableText(type, cont){
         vtexts.push(["e", "nt"]);
         for (var i = 1; i < cont.length; i++){
           vtexts.push([","]);
-          vtexts.push(["e", "nt"]);
-        }
-      }
-    }
+          vtexts.push(["e", "nt"]);  }
+      }  }
   }
   else if (type === "RECORD"){
     vtexts.push(["{"]);
@@ -310,8 +268,7 @@ function variableText(type, cont){
       vtexts.push([ cont[i][0], "v" ]);
       vtexts.push([":="]);
       vtexts.push([ String(cont[i][1]["NUM"]),
-                   'n'] );
-    }
+                   'n'] );  }
     vtexts.push(["}"]);  }
 
   return vtexts;
@@ -333,7 +290,7 @@ function _drawTree(ast, left, level){
         }
       var w = cur.bounds.width;
       cur.moveTo([left,level*vertical])
-      return [w+12, cur];
+      return [w+16, cur];
     }
   }
   var varCount = 0;
@@ -341,12 +298,12 @@ function _drawTree(ast, left, level){
   var widths = [];
   var children = [];
   for (var i = 0; i < cont.length; i++){
-    console.log("children", typeof cont[i]);
+    // console.log("children", typeof cont[i]);
     if (typeof cont[i] === "string"){
       // if (type !== "CALLV")
       //   continue;
       cur.setVariable(varCount, cont[i]);
-      console.log("set ",cur,"to",cont[i]);
+      // console.log("set ",cur,"to",cont[i]);
       varCount++;
       continue;
     }
@@ -373,15 +330,7 @@ function _drawTree(ast, left, level){
 
   cur.moveTo([left + left_added, level*vertical]);
   var w = Math.max(totalWidth, cur.bounds.width);
-  return [w+12, cur];
-}
-
-function removeTree(node){
-  var children = node.children;
-  node.clear();
-  delete node;
-  for (var i = 0; i < children.length; i++)
-    removeTree(children[i]);
+  return [w+16, cur];
 }
 
 function drawTree(ast){
@@ -392,6 +341,15 @@ function drawTree(ast){
   curTree.parent = null;
   return result;
 }
+
+function removeTree(node){
+  var children = node.children;
+  node.clear();
+  delete node;
+  for (var i = 0; i < children.length; i++)
+    removeTree(children[i]);
+}
+
 
 function onFrame(event){
   var delta = nextCenter - view.center;
@@ -419,6 +377,8 @@ function moveCenterTo1(nodeOutline){
     prevNodeOutline.fillColor = '#FDFDFD';
   prevNodeOutline = nodeOutline; 
 }
+
+var traveStarted = false;
 
 function traverse(){
   if (!curTree)
