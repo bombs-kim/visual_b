@@ -1,6 +1,12 @@
 // code from bcmoney at Stackoverflow
 // https://stackoverflow.com/questions/13709482/how-to-read-text-file-in-javascript
 
+// [External dependencies]
+// drawTree: visual.html
+// printInit: visual.html
+// decorateInit: visual.html
+// moveCenterTo2: visual.html
+
 var reader; //GLOBAL File Reader object
 
 function checkFileAPI() {
@@ -23,10 +29,12 @@ function readText(filePath) {
             j = JSON.parse(output);
             var width_and_tree = drawTree(j);
             var width = width_and_tree[0];
+            printInit();
+            decorateInit();
             moveCenterTo2([width/2, paper.view.size.height/2 - 20]);
-            window.traverse = function(){
-                travGen = travMaker(curTree);
-                return () => {travGen.next();}
+            window.executeOne = function(){
+                var gen = eval(curTree);
+                return function () {gen.next();}
             }();
 
             // $("#print table").empty();

@@ -58,7 +58,7 @@ The visualizer is embedded in visual.html file. The Interpreter is contained in 
 <br/>
 <br/>
 
-Generators are good
+Generators are great
 --------------------
 While implementing the visualizer and the interpreter, I encountered an problem. I wanted to show the execution of a program written in B step by step, but I realized that there is no such thing as **pause button** in function executions in javaScript, which frustrated me a bit.
 

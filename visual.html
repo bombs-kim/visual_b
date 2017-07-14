@@ -8,16 +8,6 @@
   src="https://code.jquery.com/jquery-3.2.1.min.js"
   integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
   crossorigin="anonymous"></script>
-  <style type="text/css">
-  html,
-  body {
-      margin: 0;
-      overflow: hidden;}
-  /* Scale canvas with resize attribute to full size */
-  canvas[resize] {
-      width: 90%;
-      height: 90%;}
-  </style>
   <script type="text/paperscript" canvas="myCanvas">
 
 var nextCenter = view.center;
@@ -371,12 +361,36 @@ function moveCenterToThis(event){
 }
 
 function moveCenterTo1(nodeOutline){
+  if (nextCenter - nodeOutline.position == {x:0, y:0}){
+    return;}
   nextCenter = nodeOutline.position;
   nodeOutline.fillColor = '#CCCCFD';
   if (prevNodeOutline)
     prevNodeOutline.fillColor = '#FDFDFD';
   prevNodeOutline = nodeOutline; 
 }
+
+function focus(node, curVal){
+  if (curVal === null) curVal = "unit";
+  moveCenterTo1(node.outline);
+  $(".result h4#r").text(curVal);  }
+
+function printInit(){
+  $("#print table").empty();  }
+
+function printUpdate(val){
+  $("#print table").append(
+      "<tr><td>" + val + "</td></tr>");  }
+
+function decorateInit(){
+  $(".result h3").text("Interpretation of").append("<br>").append(
+        "the current node").css("color", "black");
+  $(".result h4#r").css("color", "black").empty();  }
+
+function decorateFinal(){
+  $(".result h3").text("Final interpretation").append("<br>").append(
+        "of the program").css("color", "blue");
+  $(".result h4#r").css("color", "blue");  }
 
 
 zooms = {0.25:{1:0.5, "-1":0.25},0.5: {1:1, "-1":0.25},
@@ -386,22 +400,26 @@ zooms = {0.25:{1:0.5, "-1":0.25},0.5: {1:1, "-1":0.25},
 window.curTree = null;
 window.drawTree = drawTree;
 window.removeTree= removeTree;
-window.moveCenterTo1 = moveCenterTo1;
-window.moveCenterTo1 = moveCenterTo1;
+window.focus = focus;
+window.printInit = printInit;
+window.printUpdate = printUpdate;
+window.decorateInit = decorateInit;
+window.decorateFinal = decorateFinal;
+window.executeAllMode = false;
 window.moveCenterTo2 = function(coord){nextCenter=new Point(coord)};
 window.zoom = function(z){
   nextZoom = zooms[nextZoom][z];
 };
 </script>
 <script>
+// seems like iterator protocol is not supported in paperjs
 function* travMaker(node){
   moveCenterTo1(node.outline);
   yield node.type;
   var cLen = node.children.length;
-  var next;
   for (var i = 0; i < cLen; i++){
     var travGenerator = travMaker(node.children[i]);
-    next = travGenerator.next();
+    var next = travGenerator.next();
     while (!next.done){
       yield  next.value
       next = travGenerator.next();}
@@ -409,12 +427,23 @@ function* travMaker(node){
   if(cLen){
     moveCenterTo1(node.outline);
     yield node.type;}
-}  
+}
 </script>
-<script src="eval.js"></script>
+<!-- <script src="eval.js"></script> -->
+<script src="eval_generator.js"></script>
 <script src="filereader.js"></script>
 </head>
 <style>
+  html,
+  body {
+      margin: 0;
+      overflow: hidden;}
+  /* Scale canvas with resize attribute to full size */
+  canvas[resize] {
+      width: 75%;
+      height: 90%;
+      margin-left: -8%;}
+
   #control div {
     margin: 10px;  }
   table {
@@ -425,23 +454,21 @@ function* travMaker(node){
       <div><input type="file" onchange='readText(this)'/></div>
       <div><button type="button" onclick='zoom(1)'>Zoom in</button></div>
       <div><button type="button" onclick='zoom(-1)'>Zoom out</button></div>
-      <div><button type="button" onclick='traverse()'>execute</button></div>
+      <div><button type="button" onclick='executeOne()'>Execute one</button></div>
   </div>
-  <div id="print" style="position:fixed; top: 10%; right: 10%">
+  <div id="print" style="position:fixed; top: 10%; right: 8%">
     <h3 >Printed<br>(Side effects)</h3>
     <table>
     </table>
     <div class="result" style="position:fixed;
-    width: 250px; bottom:10%; right:5%">
-    <h3> Meaning of your Program<br>(Execution Result) </h3>
+    width: 250px; bottom:10%; right:3%">
+    <h3> Interpretation of<br>the current node</h3>
     <h4 id="r"></h4>
     </div>
   </div>
   </div>
   <div class="ast">
     <h3> Abstract Syntax Tree for B language </h3>
-  
   <canvas id="myCanvas" resize="true"></canvas>
-  
 </body>
 </html>
