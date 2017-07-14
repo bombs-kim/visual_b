@@ -24,15 +24,18 @@ function readText(filePath) {
             var width_and_tree = drawTree(j);
             var width = width_and_tree[0];
             moveCenterTo2([width/2, paper.view.size.height/2 - 20]);
+            window.traverse = function(){
+                travGen = travMaker(curTree);
+                return () => {travGen.next();}
+            }();
 
-            $("#print table").empty();
-            j2 = JSON.parse(output);
-            var result_output = eval(j2);
-            $(".result h4#r").text(result_output[0] ? result_output[0] : "unit");
-            for (var i = 0; i < result_output[1].length; i++)
-                $("#print table").append(
-                    "<tr><td>" + result_output[1][i] + "</td></tr>")
-            // alert(eval_exp({}, j));
+            // $("#print table").empty();
+            // j2 = JSON.parse(output);
+            // var result_output = eval(j2);
+            // $(".result h4#r").text(result_output[0] ? result_output[0] : "unit");
+            // for (var i = 0; i < result_output[1].length; i++)
+            //     $("#print table").append(
+            //         "<tr><td>" + result_output[1][i] + "</td></tr>")
         };//end onload()
         reader.readAsText(filePath.files[0]);
     }//end if html5 filelist support
