@@ -19,7 +19,6 @@ function get_updated_env(x,v,env){
     obj[x] = v;
     return Object.assign(obj, env);  }
 
-
 function getBop(type) {
     switch (type) {
     case "ADD":
@@ -52,19 +51,17 @@ function* evalSubExpHelper(gen, sub_results){
     var cur = null;
     while (!next.done){
         cur = next;
-        console.log(cur.value);
         yield;
     next = gen.next();}
-    console.log("cur.val type", typeof cur.value);
     sub_results.push(cur.value);
 }
 
-var specialSubExpCases = ["WHILE", "LETV", "LETF", "CALLV", "CALLR"];
+var specialSubExpCases = ["IF", "WHILE", "LETV", "LETF", "CALLV", "CALLR"];
 var singleFocus = ["NUM", "VAR", "RECORD", "READ"];
 
 function* evalExp(env, node){
     var type = node.type;
-    console.log("cur node ", type);
+    console.log("eval node: ", type);
     var children = node.children;
     var vs = unpack(node.content.vs);
     var nums = unpack(node.content.nums);
@@ -116,21 +113,31 @@ function* evalExp(env, node){
         return;
     case "NOT":
         console.assert(typeof subs[0] === "boolean");
-        focus(node, !b);
-        yield !b;
+        focus(node, !subs[0]);
+        yield !subs[0];
         return;
     case "SEQ":
         focus(node, subs[1]);
         yield subs[1]; // ignore subs[0]
         return;
     case "IF":
+        var gen = evalSubExpHelper(evalExp(env, children[0]), subs);
+            while(!gen.next().done) yield;
         console.assert(typeof subs[0] === "boolean");
+        // When the test is true don't evalute else
+        // and vice versa to avoid inifinite loop
         if (subs[0]) {
+            var gen = evalSubExpHelper(
+                evalExp(env, children[1]), subs);
+            while(!gen.next().done) yield;
             focus(node, subs[1]);
             yield subs[1];  }
         else {
-            focus(node, subs[2]);
-            yield subs[2];  }
+            var gen = evalSubExpHelper(
+                evalExp(env, children[2]), subs);
+            while(!gen.next().done) yield;
+            focus(node, subs[1]);   // not sub[2] because
+            yield subs[1];  }       // true scenario not evaluated
         return;
     case "WHILE":
         var gen = evalSubExpHelper(
@@ -167,38 +174,34 @@ function* evalExp(env, node){
         return;
     case "LETF":
         var fname = vs[0];
-        // var argnames = ARGScont(children[0]); // check this out
         var argnames = unpack(children[0].content.vs);
         var e1 = children[1]
         var fbody = [argnames,e1,env];
         var gen = evalSubExpHelper(
-                    evalExp(get_updated_env(fname, fbody, env),
-                                children[2]),
-                    subs);
+            evalExp(get_updated_env(fname, fbody, env),children[2]),
+            subs);
         while (!gen.next().done) yield;
         focus(node, subs[2]);
         yield subs[2];
         return;
     case "CALLV":
         var fname = vs[0];
-        var _args = children[0].content.nts; // before eval
-        var args = [];
-        var nargs = _args.length;
-        var gen = evalSubExpHelper(
-                    evalExp(env, _args[i]), subs );
-        while (!gen.next().done) yield;
-        for (var i = 0; i < nargs; i++){
-            args.push(subs[0]);  }
+        var args = children[0].children;
+        for (var i = 0; i < args.length; i++){
+            var gen = evalSubExpHelper(
+                evalExp(env, args[i]), subs);
+            while(!gen.next().done)
+                yield;  }
         var [argnames, f_exp, f_env] = env[fname];
-        for (var i = 0; i < nargs; i++){
+        for (var i = 0; i < args.length; i++){
             var nl = new_loc();
             f_env = get_updated_env(argnames[i], nl, f_env);
-            mem[nl] = args[i];  }
-        f_env = get_updated_env(fname, env[fname], f_env);
+            mem[nl] = subs[i];  }
+        var f_env = get_updated_env(fname, env[fname], f_env);
 
-        f_returns = [];
+        var f_returns = [];
         var gen = evalSubExpHelper(
-                    evalExp(f_env, f_exp), f_return );
+                    evalExp(f_env, f_exp), f_returns );
         while (!gen.next().done) yield;
         focus(node, f_returns[0]);
         yield f_returns[0];
@@ -223,8 +226,7 @@ function* evalExp(env, node){
         for (var i = 0; i < vs.length; i++){
             var nl = new_loc();
             rec[vs[i]] = nl;
-            mem[nl] = Number(nums[i]);
-        }
+            mem[nl] = Number(nums[i]);  }
         focus(node, rec); // need to be checked
         yield rec;
         return;
