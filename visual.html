@@ -14,6 +14,7 @@ var nextCenter = view.center;
 var nextZoom = view.zoom;
 var prevNodeOutline = null;
 var prevExecutedNode = null;
+var vertical = 40;
 
 var texts = {
   TRUE: [["true"]],
@@ -122,12 +123,12 @@ var Content = Base.extend({
     for (var i = 0; i < all.length; i++){
       all[i].remove();  }
   },
-  hide: function(){
-    var all = this.all;
-    for (var i = 0; i < all.length; i++){
-      all[i].setVisible(false);  }
-  }
-})
+  // hide: function(){
+  //   var all = this.all;
+  //   for (var i = 0; i < all.length; i++){
+  //     all[i].setVisible(false);  }
+  // }
+});
 
 
 var Node = Base.extend({
@@ -161,8 +162,7 @@ var Node = Base.extend({
   },
   setNumber: function(value){
     if (this.content.type != "NUM"){
-      alert("Error. set number to a non-number type")
-    }
+      alert("Error. set number to a non-number type")  }
     this.content.all[0].content = String(value);
     this.update();
   },
@@ -199,8 +199,7 @@ var Node = Base.extend({
       // edge.removeSegment(1);
       // edge.removeSegment(0);
       edge.add(pbottom);
-      edge.add(ctop);
-    }
+      edge.add(ctop);  }
   },
   // move first text's topLeft
   moveTo: function(pt){
@@ -213,14 +212,12 @@ var Node = Base.extend({
     this.outline.remove();
     var edges = this.edges;
     for (var i = 0; i < edges.length; i++){
-      edges[i].remove();}
+      edges[i].remove();  }
   }
 });
 
 
-var terminals = ["NUM", "TRUE", "FALSE", "UNIT", "VAR", "READ",
-  "RECORD"];
-var vertical = 40;
+var terminals = ["NUM", "TRUE", "FALSE", "UNIT", "VAR", "READ", "RECORD"];
 
 function isTerminal(type){
   var ret = false
@@ -234,7 +231,7 @@ function variableText(type, cont){
   var vtexts = [];
   if (type === "ARGS"){
     if (cont.length >= 1){
-      // In case of LETF or call by value
+      // In case of ARGS of LETF or CALLR
       // contents are not expressions
       if (typeof cont[0] === "string"){
         vtexts.push(["x", "v"]);
@@ -242,7 +239,7 @@ function variableText(type, cont){
           vtexts.push([","]);
           vtexts.push(["x", "v"]);  }
       } 
-      // In case of LETV,
+      // In case of ARGS of CALLV
       // contents will be evaluated later on
       else{
         vtexts.push(["e", "nt"]);
@@ -405,7 +402,6 @@ window.printInit = printInit;
 window.printUpdate = printUpdate;
 window.decorateInit = decorateInit;
 window.decorateFinal = decorateFinal;
-window.executeAllMode = false;
 window.moveCenterTo2 = function(coord){nextCenter=new Point(coord)};
 window.zoom = function(z){
   nextZoom = zooms[nextZoom][z];
@@ -442,19 +438,25 @@ function* travMaker(node){
   canvas[resize] {
       width: 75%;
       height: 90%;
-      margin-left: -8%;}
-
+      margin-left: -8%;  }
+  #control {
+    position:fixed;
+    top: 30px;
+    left: 30px;
+    width: 120px;
+    text-align: left;  }
   #control div {
     margin: 10px;  }
   table {
     margin: auto; }
 </style>
 <body onload="checkFileAPI();" style="text-align: center;">
-  <div id="control" style="position:fixed; top: 30px; left: 30px; text-align: left; ">
+  <div id="control">
       <div><input type="file" onchange='readText(this)'/></div>
       <div><button type="button" onclick='zoom(1)'>Zoom in</button></div>
       <div><button type="button" onclick='zoom(-1)'>Zoom out</button></div>
-      <div><button type="button" onclick='executeOne()'>Execute one</button></div>
+      <div><button type="button" onclick='executeOne()'>Execute</button></div>
+      <div><button type="button" onclick='executeAll()'>Execute all</button></div>
   </div>
   <div id="print" style="position:fixed; top: 10%; right: 8%">
     <h3 >Printed<br>(Side effects)</h3>

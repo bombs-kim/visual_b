@@ -36,14 +36,14 @@ function readText(filePath) {
                 var gen = eval(curTree);
                 return function () {gen.next();}
             }();
-
-            // $("#print table").empty();
-            // j2 = JSON.parse(output);
-            // var result_output = eval(j2);
-            // $(".result h4#r").text(result_output[0] ? result_output[0] : "unit");
-            // for (var i = 0; i < result_output[1].length; i++)
-            //     $("#print table").append(
-            //         "<tr><td>" + result_output[1][i] + "</td></tr>")
+            window.executeAll = function(){
+                var gen = eval(curTree);
+                var done = false;
+                function one(){
+                    if(!gen.next().done){
+                        setTimeout(one, 120); }  }
+                setTimeout(one, 120);
+            }
         };//end onload()
         reader.readAsText(filePath.files[0]);
     }//end if html5 filelist support
