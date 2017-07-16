@@ -9,5 +9,5 @@ rm asts/*
 for f in $(ls examples)
 do  outpath=asts/${f%.b}.js
     # echo "ast=" > $outpath
-    ./run examples/$f | tail -n +2 > $outpath;
+    ./run examples/$f > $outpath;
 done

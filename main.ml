@@ -18,7 +18,6 @@ let main () =
     	let file_channel = open_in !src in
     	let lexbuf = Lexing.from_channel file_channel in
     	let pgm = Parser.program Lexer.start lexbuf in
-        print_endline "== 입력 프로그램 ==";
         B_PP.pp pgm
 
 let _ = main ()
