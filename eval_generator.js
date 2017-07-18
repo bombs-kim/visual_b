@@ -16,8 +16,9 @@ function new_loc() {
 
 function get_updated_env(x,v,env){
     obj = {}
+    Object.assign(obj, env)
     obj[x] = v;
-    return Object.assign(obj, env);  }
+    return obj;  }
 
 function getBop(type) {
     switch (type) {
@@ -61,7 +62,7 @@ var singleFocus = ["NUM", "VAR", "RECORD", "READ"];
 
 function* evalExp(env, node){
     var type = node.type;
-    console.log("eval node: ", type);
+    console.log("eval node: ", type, " env", env);
     var children = node.children;
     var vs = unpack(node.content.vs);
     var nums = unpack(node.content.nums);
