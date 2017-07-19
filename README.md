@@ -2,7 +2,7 @@
 
 About this project
 -------------------
-This project is based on the Programming Language Theory class COSE212, Fall 2015 by Professor Hakjoo Oh. I implemented a programming language called B with Ocaml in that class. B language is a small subset of C, which is why it was named so. But, it has a bit of Ocaml's tidy tastes, too. You can find the language's formal syntax and semantics in PLclass_project_info.pdf file.
+This project is based on the Programming Language Theory class COSE212, Fall 2015 by Professor Hakjoo Oh. I implemented a interpreter of a programming language called B with Ocaml in that class. B language is a small subset of C, which is why it was named so. But, it has a bit of Ocaml's tidy tastes, too. You can find the language's formal syntax and semantics in PLclass_project_info.pdf file.
 After taking Compilers course in the last semester, I decided to recap what I learned in the PL class and complete my understanding of programming language interpretation in a formal and abstract way. In this project, I aim to visualize full execution paths of programs written in B, as well as interpreting(or executing) them.
 <br/>
 <br/>
