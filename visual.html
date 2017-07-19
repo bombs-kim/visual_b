@@ -8,6 +8,9 @@
   src="https://code.jquery.com/jquery-3.2.1.min.js"
   integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
   crossorigin="anonymous"></script>
+  <!-- default paperscript paser doesn't support ECMA2015-->
+  <!-- so you need to import newer version of acorn.js -->
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/acorn/4.0.11/acorn.js'></script>
   <script type="text/paperscript" canvas="myCanvas">
 
 var nextCenter = view.center;
@@ -367,10 +370,49 @@ function moveCenterTo1(nodeOutline){
   prevNodeOutline = nodeOutline; 
 }
 
-function focus(node, curVal){
+function focus(node, curVal, mem, env){
   if (curVal === null) curVal = "unit";
   moveCenterTo1(node.outline);
-  $(".result h4#r").text(curVal);  }
+  $("#result h4#result-content").text(curVal);
+  renewMem(mem);
+  renewEnv(env);  }
+
+function renewMem(mem){
+  var table = $("#memory table");
+  table.empty();
+  var keys = Object.keys(mem);
+  for (var i = 0; i < keys.length;){
+    var tr_addr = $("<tr/>").addClass("addr");
+    var tr_content = $("<tr/>");
+    for(var count5 = 0; count5 < 5 && i < keys.length;
+                       count5++, i++){
+      tr_addr.append(
+        $("<td/>").text(keys[i])  );
+      tr_content.append($("<td/>").text(
+        mem[keys[i]])  );  }
+    table.append(tr_addr).append(tr_content);  }
+}
+
+function renewEnv(env){
+  var table = $("#env table");
+  table.empty();
+  var keys = Object.keys(env);
+  for (var i = 0; i < keys.length;){
+    var tr = $("<tr/>");
+    for(var count2 = 0; count2 < 2 && i < keys.length;
+                       count2++, i++){
+      var key = ("<span style='color: #772277'>" +
+       keys[i] + "</span>");
+      var content = (" : <span style='font-size:0.5em'>" +
+        env[keys[i]] + "</span>");
+      if (typeof env[keys[i]] === 'object'){
+        content  = " : proc" }
+      tr.append(
+        $("<td>").append(key).append(content)  );
+    }
+    table.append(tr); }
+}
+
 
 function printInit(){
   $("#print table").empty();  }
@@ -380,35 +422,16 @@ function printUpdate(val){
       "<tr><td>" + val + "</td></tr>");  }
 
 function decorateInit(){
-  $(".result h3").text("Interpretation of").append("<br>").append(
+  $("#result h3").text("Interpretation of").append("<br>").append(
         "the current node").css("color", "black");
-  $(".result h4#r").css("color", "black").empty();  }
+  $("#result h4#result-content").css("color", "black").empty();  }
 
 function decorateFinal(){
-  $(".result h3").text("Final interpretation").append("<br>").append(
+  $("#result h3").text("Final interpretation").append("<br>").append(
         "of the program").css("color", "blue");
-  $(".result h4#r").css("color", "blue");  }
+  $("#result h4#result-content").css("color", "blue");  }
 
 
-zooms = {0.25:{1:0.5, "-1":0.25},0.5: {1:1, "-1":0.25},
-            1:{1:2, "-1":0.5}, 2:{1:3, "-1":1}, 
-            3:{1:4, "-1":2}, 4:{1:4, "-1":3}}
-
-window.curTree = null;
-window.drawTree = drawTree;
-window.removeTree= removeTree;
-window.focus = focus;
-window.printInit = printInit;
-window.printUpdate = printUpdate;
-window.decorateInit = decorateInit;
-window.decorateFinal = decorateFinal;
-window.moveCenterTo2 = function(coord){nextCenter=new Point(coord)};
-window.zoom = function(z){
-  nextZoom = zooms[nextZoom][z];
-};
-</script>
-<script>
-// seems like iterator protocol is not supported in paperjs
 function* travMaker(node){
   moveCenterTo1(node.outline);
   yield node.type;
@@ -424,7 +447,25 @@ function* travMaker(node){
     moveCenterTo1(node.outline);
     yield node.type;}
 }
+
+window.curTree = null;
+window.drawTree = drawTree;
+window.removeTree= removeTree;
+window.focus = focus;
+window.printInit = printInit;
+window.printUpdate = printUpdate;
+window.decorateInit = decorateInit;
+window.decorateFinal = decorateFinal;
+window.moveCenterTo2 = function(coord){nextCenter=new Point(coord)};
+zooms = {0.25:{1:0.5, "-1":0.25},0.5: {1:1, "-1":0.25},
+            1:{1:2, "-1":0.5}, 2:{1:3, "-1":1}, 
+            3:{1:4, "-1":2}, 4:{1:4, "-1":3}}
+window.zoom = function(z){
+  nextZoom = zooms[nextZoom][z];
+};
+window.travMaker = travMaker;
 </script>
+
 <!-- <script src="eval.js"></script> -->
 <script src="eval_generator.js"></script>
 <script src="filereader.js"></script>
@@ -433,11 +474,16 @@ function* travMaker(node){
   html,
   body {
       margin: 0;
+      height:100%;
       overflow: hidden;}
   /* Scale canvas with resize attribute to full size */
+
+  .ast{
+    height: 80%;
+  }
   canvas[resize] {
       width: 75%;
-      height: 90%;
+      height: 100%;
       margin-left: -8%;  }
   #control {
     position:fixed;
@@ -447,8 +493,65 @@ function* travMaker(node){
     text-align: left;  }
   #control div {
     margin: 10px;  }
-  table {
-    margin: auto; }
+/*  table.result {
+    margin: auto; }*/
+
+  #memory{
+    text-align: center;
+    position:fixed;
+    top: 280px;
+    left: 10px;  }
+  #memory-scroll{
+    width: 250px;
+    height:150px;
+    overflow:auto;  
+    margin-top:20px;  }
+  #memory table {
+    width:100%;
+    border-collapse: collapse;
+    table-layout: fixed;}
+  #memory table, #memory td {
+    border: 1px Beige solid; }
+  #memory td{
+    width:20%;
+  }
+  #memory tr.addr{
+    font-size: 0.5em;  }
+
+  #env{
+    text-align: center;
+    position:fixed;
+    top: 450px;
+    left: 10px;  }
+  #env-scroll{
+    width: 250px;
+    height:150px;
+    overflow:auto;  }
+  #env table {
+    width:100%;
+    border-collapse: collapse;
+    table-layout: fixed;}
+  #env table, #env td {
+    border: 1px Beige solid; }
+  #env td{
+    width:50%;
+      }
+
+  #print{
+    position:fixed;
+    top: 10%;
+    right: 8%;
+    height: 40%; }
+
+  #print-content{
+    height:100%;
+    overflow:auto; }
+  #result {
+    position:fixed;
+    width: 250px;
+    bottom:10%;
+    right:3%;  }
+
 </style>
 <body onload="checkFileAPI();" style="text-align: center;">
   <div id="control">
@@ -458,17 +561,34 @@ function* travMaker(node){
       <div><button type="button" onclick='executeOne()'>Execute</button></div>
       <div><button type="button" onclick='executeAll()'>Execute all</button></div>
   </div>
-  <div id="print" style="position:fixed; top: 10%; right: 8%">
-    <h3 >Printed<br>(Side effects)</h3>
-    <table>
-    </table>
-    <div class="result" style="position:fixed;
-    width: 250px; bottom:10%; right:3%">
-    <h3> Interpretation of<br>the current node</h3>
-    <h4 id="r"></h4>
+  <div id="memory">
+    <div id="memory-scroll">
+      <h3>Memory</h3>
+      <table>
+      </table>
     </div>
   </div>
+  <div id="env">
+    <div id="env-scroll">
+      <h3>Environment</h3>
+      <table>
+      </table>
+    </div>
   </div>
+  <div id="print">
+    <h3 >Printed<br>(Side effects)</h3>
+    <div id="print-content">
+      <table>
+      </table>
+    </div>
+  </div>
+
+  <div id="result">
+    <h3> Interpretation of<br>the current node</h3>
+    <h4 id="result-content"></h4>
+    </div>
+  </div>
+
   <div class="ast">
     <h3> Abstract Syntax Tree for B language </h3>
   <canvas id="myCanvas" resize="true"></canvas>

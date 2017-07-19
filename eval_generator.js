@@ -68,7 +68,7 @@ function* evalExp(env, node){
     var nums = unpack(node.content.nums);
 
     if (!singleFocus.includes(type)){
-        focus(node, "Not available");
+        focus(node, "Not available", mem, env);
         yield;  }
 
     var subs = []; //results of sub expressions
@@ -81,11 +81,11 @@ function* evalExp(env, node){
 
     switch (type){
     case "NUM":
-        focus(node, nums[0]);
+        focus(node, nums[0], mem, env);
         yield Number(nums[0]);
         return; // important. finish generator
     case "VAR":
-        focus(node, mem[env[vs[0]]]);
+        focus(node, mem[env[vs[0]]], mem, env);
         yield mem[env[vs[0]]];
         return;
     case "ADD":
@@ -96,29 +96,28 @@ function* evalExp(env, node){
         console.assert(
             typeof subs[0] === "number" && typeof subs[1] === "number");
         var ret = bop(subs[0],subs[1]);
-        focus(node, ret);
+        focus(node, ret, mem, env);
         yield ret;
         return;
     case "EQUAL":
         var ret = ( (subs[0] === subs[1]) || // n1=n2 or b1=b2
                 (is_empty_obj(subs[0]) && is_empty_obj(subs[0])) );
-        focus(node, ret);
+        focus(node, ret, mem, env);
         yield ret;
         return
     case "LESS":
         console.assert(typeof subs[0] === "number" && typeof subs[1] === "number");
-        focus(node);
         var ret = subs[0] < subs[1];
-        focus(node, ret);
+        focus(node, ret, mem, env);
         yield ret;
         return;
     case "NOT":
         console.assert(typeof subs[0] === "boolean");
-        focus(node, !subs[0]);
+        focus(node, !subs[0], mem, env);
         yield !subs[0];
         return;
     case "SEQ":
-        focus(node, subs[1]);
+        focus(node, subs[1], mem, env);
         yield subs[1]; // ignore subs[0]
         return;
     case "IF":
@@ -131,13 +130,13 @@ function* evalExp(env, node){
             var gen = evalSubExpHelper(
                 evalExp(env, children[1]), subs);
             while(!gen.next().done) yield;
-            focus(node, subs[1]);
+            focus(node, subs[1], mem, env);
             yield subs[1];  }
         else {
             var gen = evalSubExpHelper(
                 evalExp(env, children[2]), subs);
             while(!gen.next().done) yield;
-            focus(node, subs[1]);   // not sub[2] because
+            focus(node, subs[1], mem, env);   // not sub[2] because
             yield subs[1];  }       // true scenario not evaluated
         return;
     case "WHILE":
@@ -153,10 +152,10 @@ function* evalExp(env, node){
             var gen = evalSubExpHelper(
                 evalExp(env, node), subs);
             while (!gen.next().done) yield;
-            focus(node, subs[2]);
+            focus(node, subs[2], mem, env);
             yield subs[2];  } // always null(unit)
         else {
-            focus(node, null);
+            focus(node, null, mem, env);
             yield null;}    // equivalent to unit in B langauge
         return;
     case "LETV":
@@ -170,7 +169,7 @@ function* evalExp(env, node){
             evalExp(get_updated_env(x,nl,env), children[1]),
             subs);
         while (!gen.next().done) yield;
-        focus(node, subs[1]);
+        focus(node, subs[1], mem, env);
         yield subs[1];
         return;
     case "LETF":
@@ -182,7 +181,7 @@ function* evalExp(env, node){
             evalExp(get_updated_env(fname, fbody, env),children[2]),
             subs);
         while (!gen.next().done) yield;
-        focus(node, subs[2]);
+        focus(node, subs[2], mem, env);
         yield subs[2];
         return;
     case "CALLV":
@@ -204,7 +203,7 @@ function* evalExp(env, node){
         var gen = evalSubExpHelper(
                     evalExp(f_env, f_exp), f_returns );
         while (!gen.next().done) yield;
-        focus(node, f_returns[0]);
+        focus(node, f_returns[0], mem, env);
         yield f_returns[0];
         return;
     case "CALLR":
@@ -218,7 +217,7 @@ function* evalExp(env, node){
         var gen = evalSubExpHelper(
                     evalExp(f_env, f_exp), f_returns );
         while (!gen.next().done) yield;
-        focus(node, f_returns[0]);
+        focus(node, f_returns[0], mem, env);
         yield f_returns[0];
         return;
     // record construction
@@ -228,20 +227,20 @@ function* evalExp(env, node){
             var nl = new_loc();
             rec[vs[i]] = nl;
             mem[nl] = Number(nums[i]);  }
-        focus(node, rec); // need to be checked
+        focus(node, rec, mem, env); // need to be checked
         yield rec;
         return;
     case "FIELD":
         var rec = subs[0];
         var x = vs[0];
-        focus(node, mem[rec[x]]);
+        focus(node, mem[rec[x]], mem, env);
         yield mem[rec[x]];
         return;
     case "ASSIGN":
         var x = vs[0];
         var v = subs[0];
         mem[env[x]] = v;
-        focus(node, v);
+        focus(node, v, mem, env);
         yield v;
         return;
     case "ASSIGNF":
@@ -249,7 +248,7 @@ function* evalExp(env, node){
         var x = vs[0];
         var v = subs[1];
         mem[rec[x]] = v;
-        focus(node, v);
+        focus(node, v, mem, env);
         yield v;
         return;
     case "READ":
@@ -257,13 +256,13 @@ function* evalExp(env, node){
         var v = input(
             "Enter value of " + x + "\n(in an integer)");
         mem[env[x]] = v;
-        focus(node, v);
+        focus(node, v, mem, env);
         yield v;
         return;
     case "WRITE":
         var n = subs[0];
         printUpdate(n);
-        focus(node, n);
+        focus(node, n, mem, env);
         yield n;
         return;
     }
