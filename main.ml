@@ -1,6 +1,7 @@
 (*
  * B Interpreter
  *)
+open Pervasives
 open Pp
 let main () =
     let src = ref "" in
@@ -13,9 +14,10 @@ let main () =
                 usage
     in
 
-	if !src = "" then Arg.usage [] usage
-    else
-    	let file_channel = open_in !src in
+  let file_channel = (if !src = ""
+      then Pervasives.stdin
+      else open_in !src)
+    in
     	let lexbuf = Lexing.from_channel file_channel in
     	let pgm = Parser.program Lexer.start lexbuf in
         B_PP.pp pgm
