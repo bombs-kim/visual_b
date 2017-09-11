@@ -1,7 +1,7 @@
 // [External dependencies]
 // focus: visual.html
-// printUpdate: visual.html
-// decorateFinal: visual.html
+// updatePrint: visual.html
+// finalizeResult: visual.html
 
 mem = {}
 
@@ -261,7 +261,7 @@ function* evalExp(env, node){
         return;
     case "WRITE":
         var n = subs[0];
-        printUpdate(n);
+        updatePrint(n);
         focus(node, n, mem, env);
         yield n;
         return;
@@ -271,7 +271,7 @@ function* evalExp(env, node){
 function* eval(root){
     var gen = evalExp({}, root);
     while(!gen.next().done) yield;
-    decorateFinal();
+    finalizeResult();
     yield;
 }
 

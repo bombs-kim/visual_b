@@ -3,7 +3,10 @@
 About this project
 -------------------
 This project is based on the Programming Language Theory class COSE212, Fall 2015 by Professor Hakjoo Oh. I implemented a interpreter of a programming language called B with Ocaml in that class. B language is a small subset of C, which is why it was named so. But, it has a bit of Ocaml's tidy tastes, too. You can find the language's formal syntax and semantics in PLclass_project_info.pdf file.
-After taking Compilers course in the last semester, I decided to recap what I learned in the PL class and complete my understanding of programming language interpretation in a formal and abstract way. In this project, I aim to visualize full execution paths of programs written in B, as well as interpreting(or executing) them.
+After a while, I decided to do the project once more so that I don't forget what I learned in the class and complete my understanding of programming language interpretation in a formal and abstract way.
+This time, however, I made an interpreter that visualizes full execution processes of programs written in B, as well as interpreting(or executing) them and I named it visual B. Visual B is distinguished from a debugger in that it is intended to be used for inspecting a program that is working correctly. It visualizes execution processes within a parse tree, which is a beautiful thing if you understand it. I hope visual B gives some more insight than a debugger which does the serial and mechanical line by line executions of a program.
+I switched to JavaScript from Ocaml when writing visual B not only to tease myself a bit, but also to utilize some rendering libraries written in JavaScript and make it available for web users.
+
 <br/>
 <br/>
 
@@ -50,7 +53,7 @@ Visualizer and Interpreter
 ------------
 Visualizer and Interpreter were impleneted in Javscript. Javascript have many good visulization libraries and I chose paperjs among them. paperjs goes with the least amount of boilerplate code and allows me the maximum customization. I wanted to intermingle the visulizer and the interpreter in one implemtation and paperjs was the right fit for me.
 
-The visualizer is embedded in visual.html file. The Interpreter is contained in a separate file named eval.js. To run them, just open visual.html with a browser and choose JSON file generated with the lexer and parser. You can find some example ASTs in JSON in asts directory.
+The visualizing logic is in visual.js file. The Interpreting logic is contained in a separate file named eval_generator.js. To run them, just open visual.html with a browser and choose JSON file generated with the lexer and parser. You can find some example ASTs in JSON in asts directory.
 </br>
 
 **Screen shot**
@@ -58,7 +61,7 @@ The visualizer is embedded in visual.html file. The Interpreter is contained in 
 <br/>
 <br/>
 
-Generators are great
+Generators are cool
 --------------------
 While implementing the visualizer and the interpreter, I encountered an problem. I wanted to show the execution of a program written in B step by step, but I realized that there is no such thing as **pause button** in function executions in javaScript, which frustrated me a bit.
 
@@ -123,12 +126,12 @@ More on B language
 ### Lexical Specification
 Identifiers in B are specified by regular expression [a-zA-Z][a-zA-Z0-9_]*.
 Identifiers are case sensitive: z and Z are different.
-The reserved words cannot be used as identifiers: unit, true, false, 
+The reserved words cannot be used as identifiers: unit, true, false,
   not, if, then, else, let, in proc, while, do, read, write
 
 Numerical integers optionally prefixed with -(for negative integer): -?[0-9]+.
 
-A comment is any character sequence within the comment block (* *). 
+A comment is any character sequence within the comment block (* *).
 Comments can be nested.
 
 ### Precedence
@@ -138,7 +141,7 @@ The precedence of B constructs in decreasing order is as follows:
    .      (* right-associative *)
    not    (*right-associative*)
    *, /   (*left-associative*)  
-   +, -   (*left-associative*) 
+   +, -   (*left-associative*)
    =, <   (*left-associative*)
    write  (*right-associative*)
    :=     (*right-associative*)
@@ -152,10 +155,10 @@ The precedence of B constructs in decreasing order is as follows:
 Examples:
 ```
   x := e1 ; e2        =>    (x := e1) ; e2   ( := has higher precedence than ;)
-  while e do e1;e2    =>    (while e do e1);e2 
+  while e do e1;e2    =>    (while e do e1);e2
   if e1 then e2 else e3;e4    =>    (if e1 then e2 else e3); e4
-  let x := e1 in e2 ; e3      =>    let x :=e in (e2;e3) 
-  x := y := 1    =>   x := (y := 1) 
+  let x := e1 in e2 ; e3      =>    let x :=e in (e2;e3)
+  x := y := 1    =>   x := (y := 1)
 ```
-If your test programs are hard to read (hence might not be parsed as you expected) then 
+If your test programs are hard to read (hence might not be parsed as you expected) then
 put parentheses around.
