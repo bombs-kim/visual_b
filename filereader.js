@@ -31,7 +31,7 @@ function readText(filePath) {
     return true;
 }
 
-var parse_url = "http://derek-kim.com/toys/visual_b_parse/"
+var parse_url = "/toys/visual_b_parse/"
 
 // used for online service
 function readAndUploadText(filePath){
@@ -43,8 +43,8 @@ function readAndUploadText(filePath){
             $.post({
                 url: parse_url,
                 data: {'text':text},
-                success: function(tree_text){
-                    window.j = JSON.parse(tree_text);
+                success: function(result){
+                    window.j = result['tree']
                     initialize(window.j);
                 }
             })
