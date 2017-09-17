@@ -2,10 +2,13 @@
 
 About this project
 -------------------
-This project is based on the Programming Language Theory class COSE212, Fall 2015 by Professor Hakjoo Oh. I implemented a interpreter of a programming language called B with Ocaml in that class. B language is a small subset of C, which is why it was named so. But, it has a bit of Ocaml's tidy tastes, too. You can find the language's formal syntax and semantics in PLclass_project_info.pdf file.
-After a while, I decided to do the project once more so that I don't forget what I learned in the class and complete my understanding of programming language interpretation in a formal and abstract way.
-This time, however, I made an interpreter that visualizes full execution processes of programs written in B, as well as interpreting(or executing) them and I named it visual B. Visual B is distinguished from a debugger in that it is intended to be used for inspecting a program that is working correctly. It visualizes execution processes within a parse tree, which is a beautiful thing if you understand it. I hope visual B gives some more insight than a debugger which does the serial and mechanical line by line executions of a program.
-I switched to JavaScript from Ocaml when writing visual B not only to tease myself a bit, but also to utilize some rendering libraries written in JavaScript and make it available for web users.
+This project is based on the Programming Language Theory class COSE212, Fall 2015 by Professor Hakjoo Oh. I implemented an interpreter of a programming language called B with Ocaml in that class as the final project. B language is a small subset of C, which is why it was named so. But, it has a bit of Ocaml's tidy tastes, too. You can find the language's formal syntax and semantics in PLclass_project_info.pdf file.
+
+After a while since I took the class, I decided to do the project once more so that I don't forget what I learned in the class and complete my understanding of programming language interpretation in a formal and abstract way.
+
+This time, however, I made an special interpreter that visualizes executions of programs written in B while interpreting them and I named it Visual B. Because cognitive ability of human beings is limited you may have a hard time understanding what it is like running a program even if you are an fine programmer. Visual B can help you with this by showing full the execution processes of a program. Visual B is distinguished from a debugger in that it is intended to be used for inspecting a program that is working correctly. It visualizes execution processes within a parse tree, which is a beautiful thing if you understand it. I hope Visual B gives some more insight than a debugger which does mechanical, line by line executions of a program.
+
+I switched to JavaScript from Ocaml when writing Visual B not only to tease myself a bit, but also to utilize some rendering libraries written in JavaScript and make it available for web users.
 
 <br/>
 <br/>
