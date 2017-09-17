@@ -1,9 +1,9 @@
 // [External dependencies]
-// focus: visual.html
+// focus: visual.js
 // updatePrint: visual.html
 // finalizeResult: visual.html
 
-mem = {}
+// window.mem = {}
 
 var locGenerator = function* () {
     var cur_loc = 10000; // starting memory address
@@ -58,7 +58,7 @@ function* evalSubExpHelper(gen, sub_results){
 }
 
 var specialSubExpCases = ["IF", "WHILE", "LETV", "LETF", "CALLV", "CALLR"];
-var singleFocus = ["NUM", "VAR", "RECORD", "READ"];
+var singleFocus = ["TRUE", "FALSE", "UNIT", "NUM", "VAR", "RECORD", "READ"];
 
 function* evalExp(env, node){
     var type = node.type;
@@ -80,6 +80,18 @@ function* evalExp(env, node){
         }  }
 
     switch (type){
+    case "TRUE":
+        focus(node, true, mem, env);
+        yield true;
+        return;
+    case "FALSE":
+        focus(node, false, mem, env);
+        yield false;
+        return;
+    case "UNIT":
+        focus(node, null, mem, env);
+        yield null;
+        return;
     case "NUM":
         focus(node, nums[0], mem, env);
         yield Number(nums[0]);
@@ -254,7 +266,7 @@ function* evalExp(env, node){
     case "READ":
         var x = vs[0];
         var v = input(
-            "Enter value of " + x + "\n(in an integer)");
+            "Enter the value of " + x + "\n(as an integer)");
         mem[env[x]] = v;
         focus(node, v, mem, env);
         yield v;
@@ -269,6 +281,7 @@ function* evalExp(env, node){
 }
 
 function* eval(root){
+    mem = {};
     var gen = evalExp({}, root);
     while(!gen.next().done) yield;
     finalizeResult();
