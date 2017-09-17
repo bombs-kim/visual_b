@@ -361,6 +361,7 @@ function moveCenterTo2(coord){
 
 function focus(node, curVal, mem, env){
   if (curVal === null) curVal = "unit";
+  else if (typeof curVal === "object") curVal = "{}"
   moveCenterTo1(node.outline);
   $("#result h4#result-content").text(curVal);
   renewMem(mem);
@@ -377,8 +378,12 @@ function renewMem(mem){
                        count5++, i++){
       tr_addr.append(
         $("<td/>").text(keys[i])  );
-      tr_content.append($("<td/>").text(
-        mem[keys[i]])  );  }
+      if (typeof (mem[keys[i]]) === 'object'){
+          tr_content.append($("<td/>").text('{}'));
+      } else {
+          tr_content.append($("<td/>").text(
+            JSON.stringify(mem[keys[i]]))  );  }
+      }
     table.append(tr_addr).append(tr_content);  }
 }
 
@@ -419,23 +424,26 @@ function initializeResult(){
 function initialize(j){
     if(window.evalDone === false)
         return;
+    window.j = j;
     var width = drawTree(j)[0];
     window.evalDone = true;
+    window.mem = {};
+    renewMem({});
+    renewEnv({});
     initializePrint();
     initializeResult();
     moveCenterTo2([width/2, paper.view.size.height/2 - 20]);
+    var gen = eval(curTree);
     window.executeOne = function(){
-        var gen = eval(curTree);
+        // var gen = eval(curTree);
         return function () {
-            if(!window.evalDone)
-                return;
             gen.next();
         }
     }();
     window.executeAll = function(){
         if(!window.evalDone)
             return;
-        var gen = eval(curTree);
+        // var gen = eval(curTree);
         window.evalDone = false;
         function one(){
             if(!gen.next().done){
@@ -495,10 +503,12 @@ window.toggleCode = function getToggleCode(){
     if (show){
       $("code").hide();
       $("canvas").show();
+      $("#toggle-code").text("Show code");
       show = false;  }
     else {
       $("canvas").hide();
       $("code").show();
+      $("#toggle-code").text("Hide code");
       show = true;  }
   }
   toggleCode();

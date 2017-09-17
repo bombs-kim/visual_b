@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Document</title>
-  <script src="paperjs-v0.11.4/dist/paper-full.js"></script>
+  <script src="/paperjs-v0.11.4/dist/paper-full.js"></script>
   <script
   src="https://code.jquery.com/jquery-3.2.1.min.js"
   integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
@@ -11,15 +11,21 @@
   <!-- default paperscript paser doesn't support ECMA2015-->
   <!-- so you need to import newer version of acorn.js -->
   <script src='https://cdnjs.cloudflare.com/ajax/libs/acorn/4.0.11/acorn.js'></script>
-  <script type="text/paperscript" canvas="myCanvas" src="visual.js"></script>
-  <script src="eval_generator.js"></script>
-  <script src="filereader.js"></script>
+  <script type="text/paperscript" canvas="myCanvas" src="/visual.js"></script>
+  <script src="/eval_generator.js"></script>
+  <script src="/filereader.js"></script>
+  <script src="/visual_b_examples.js"></script>
+  <!-- for homepage -->
+  <!-- <script type="text/paperscript" canvas="myCanvas" src="/static/assets/js/visual.js"></script>
+  <script src="/static/assets/js/eval_generator.js"></script>
+  <script src="/static/assets/js/filereader.js"></script>
+  <script src="/static/assets/js/visual_b_examples.js"></script> -->
 </head>
 <style>
   html,
   body {
       margin: 0;
-      height:100%;
+      height:100%;f
       overflow: hidden;}
   /* Scale canvas with resize attribute to full size */
 
@@ -40,6 +46,17 @@
     margin: 10px;  }
 /*  table.result {
     margin: auto; }*/
+  button{
+      width: 85px;
+  }
+  #control .zoom{
+      width: 40px;
+  }
+
+  button.example {
+      width: 20px;
+      text-align: center;
+  }
 
   #memory{
     text-align: center;
@@ -77,20 +94,19 @@
     border-collapse: collapse;
     table-layout: fixed;}
   #env table, #env td {
-    border: 1px Beige solid; }
+    border: 1px Beige solid;  }
   #env td{
-    width:50%;
-      }
+    width:50%;  }
 
   #print{
     position:fixed;
     top: 10%;
     right: 8%;
-    height: 40%; }
+    height: 40%;  }
 
   #print-content{
     height:100%;
-    overflow:auto; }
+    overflow:auto;  }
   #result {
     position:fixed;
     width: 250px;
@@ -100,12 +116,21 @@
 <body onload="checkFileAPI();" style="text-align: center;">
   <div id="control">
       <div><input type="file" onchange='readText(this)'/></div>
-      <div><button type="button" onclick='zoom(1)'>Zoom in</button></div>
-      <div><button type="button" onclick='zoom(-1)'>Zoom out</button></div>
-      <div><button type="button" onclick='executeOne()'>Execute</button></div>
-      <div><button type="button" onclick='executeAll()'>Execute all</button></div>
-      <div><button type="button" onclick='initialize(window.j)'>reset</button></div>
-      <div><button id="toggle-code" type="button" onclick='toggleCode()'>Show/Hide<br/>code</button></div>
+      <!-- for homepage -->
+      <!-- <div><input type="file" onchange='readAndUploadText(this)'/></div> -->
+      <div><button class='zoom' type="button" onclick='zoom(1)'> + </button>
+           <button class='zoom' type="button" onclick='zoom(-1)'> - </button></div>
+      <div><button type="button" onclick='executeOne()'>Run</button></div>
+      <div><button type="button" onclick='executeAll()'>Run all</button></div>
+      <div><button type="button" onclick='initialize(window.j)'>Reset</button></div>
+      <div><button id="toggle-code" type="button" onclick='toggleCode()'>Show code</button></div>
+      <div>
+          &nbsp;&nbsp;Examples</br>
+          <button class="example" type="button" onclick='runEx1()'>1</button>
+          <button class="example" type="button" onclick='runEx2()'>2</button>
+          <button class="example" type="button" onclick='runEx3()'>3</button>
+          <button class="example" type="button" onclick='runEx4()'>4</button>
+      </div>
   </div>
   <div id="memory">
     <div id="memory-scroll">
@@ -140,7 +165,8 @@
   <canvas id="myCanvas" resize="true"></canvas>
   <div style="position:fixed; top: 10vh; left: 35%; right: 30%" >
     <pre style="text-align:left;">
-    <code></code>
+    <code>
+    </code>
     </pre>
   </div>
 </body>
