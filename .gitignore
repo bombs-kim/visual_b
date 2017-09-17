@@ -1,5 +1,7 @@
 *.cmi
 *.cmo
 *.mli
+lexer.ml
+parser.ml
 run
 archive
