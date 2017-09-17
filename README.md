@@ -2,11 +2,11 @@
 
 About this project
 -------------------
-This project is based on the Programming Language Theory class COSE212, Fall 2015 by Professor Hakjoo Oh. I implemented an interpreter of a programming language called B in that class as the final project. B language is a small subset of C, which is why it was named so. But, it has a bit of Ocaml's tidy tastes, too. You can find the language's formal syntax and semantics in PLclass_project_info.pdf file.
+This project is based on the Programming Language Theory class COSE212, Fall 2015 by Professor Hakjoo Oh. I implemented an interpreter of a programming language called B in that class as the final project. B language is a small subset of C, which is why it was named so. But, it has a bit of Ocaml's tidy tastes, too. You can find the language's formal syntax and semantics in plclass_project_info.pdf file.
 
-After a while since I took the class, I decided to do the project once more so that I don't forget valuable lessons I learned in the class and complete my understanding of programming languages in general. After all, *a programming language is the most fun thing to program* like somebody called Paul Graham said.
+After a while since I took the class, I decided to do the project once more so that I don't forget valuable lessons I learned in the class and complete my understanding of programming languages in general. After all, <span style="color:DarkBlue; font-style:italic">a programming language is the most fun thing to program</span> like somebody called Paul Graham said.
 
-This time, however, I didn't make an ordinary interpreter. I wrote an interpreter that visualizes executions of programs written in B while interpreting them and I named it Visual B. Because cognitive ability of human beings is limited you may have a hard time understanding what it is like running a program even if you are a fine programmer. Actually many people are not even aware that they are not understanding it. Visual B can help you understand B language or programming languages in general by showing full the execution processes of a program. Visual B is distinguished from a debugger in that it is intended to be used for inspecting a program that is working correctly. It visualizes execution processes within a parse tree, which is a beautiful thing if you understand it. I hope Visual B gives some more insight than a debugger which does mechanical, line by line executions of a program.
+This time, however, I didn't make an ordinary interpreter. I wrote an interpreter that visualizes executions of programs written in B while interpreting them and I named it Visual B. Because cognitive ability of human beings is limited you may have a hard time understanding what it is like running a program even if you are a fine programmer. Visual B can help you with this by enabling you see a program <span style="color:DarkBlue; font-style:italic">like the way compilers and interpreters see it</span>. Visual B is distinguished from a debugger in that it is intended to be used for inspecting a program that is working correctly. It visualizes execution processes within a parse tree, which is a beautiful thing if you understand it. I hope Visual B gives some more insight than a debugger which does mechanical, line by line executions of a program.
 
 I switched to JavaScript from Ocaml when writing Visual B not only to tease myself a bit, but also to utilize some rendering libraries written in JavaScript and make it available for web users.
 
@@ -58,8 +58,8 @@ Visualizer and Interpreter were impleneted in Javscript. Javascript have many go
 
 The visualizing logic is in visual.js file. The Interpreting logic is contained in a separate file named eval_generator.js. To run them you need to run a local server. You can do the following for example
 ```
-cd <root_of_this_project>
-python3 -m http.server
+$ cd [project directory]
+$ python3 -m http.server
 ```
 Now open your browser and go to localhost/visual.html and choose any JSON file generated with the lexer and parser. You can find some example ASTs in asts directory of this project.
 
@@ -73,7 +73,7 @@ If you can't follow the instructions, you can simply visit <a href="http://derek
 
 Generators are cool
 --------------------
-While implementing the visualizer and the interpreter, I encountered an problem. I wanted to show the execution of a program written in B step by step, but I realized that there is no such thing as **pause button** in function executions in javaScript, which frustrated me a bit.
+While implementing the visualizer and the interpreter, I encountered an problem. I wanted to show the execution of a program written in B step by step, but I realized that there is no such thing as *pause button* in function executions in javaScript, which frustrated me a bit.
 
 After searching for a solution for a while, I found that generator syntax which was introduced in ECMAScript 6 can rescue me from the misery. It might be neccessary for you to know the concept of <a href="https://en.wikipedia.org/wiki/Lazy_evaluation">lazy evaluation</a> to understand generators in JavaScript. I will show you an example of what can be different with generators.
 
@@ -127,7 +127,7 @@ function* travMaker(node){
 var traverse2 = travMaker(rootNode).next;
 
 ```
-Once `traverse2` is called, the body of `travMaker` executed until it reaches a `yield` statement. If you call `traverse2` one more time, it resumes from the next line of the previously called `yield` statement. A generator can work as an **pause button** , in effect. The code becomes shorter and you don't need extra variables. Traversing is just an simple example of what you can do with generators, and it is much more useful when you make an step-by-step interpreter.
+Once `traverse2` is called, the body of `travMaker` executed until it reaches a `yield` statement. If you call `traverse2` one more time, it resumes from the next line of the previously called `yield` statement. A generator can work as an *pause button* , in effect. The code becomes shorter and you don't need extra variables. Traversing is just an simple example of what you can do with generators, and it is much more useful when you make an step-by-step interpreter.
 
 
 More on B language
