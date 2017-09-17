@@ -22,7 +22,7 @@ function readText(filePath) {
     if(filePath.files && filePath.files[0]) {
         reader.onload = function (e) {
             output = e.target.result;
-            window.j = JSON.parse(output);
+            j = JSON.parse(output);
             initialize(window.j);
         };//end onload()
         reader.readAsText(filePath.files[0]);
@@ -38,8 +38,9 @@ function readAndUploadText(filePath){
      //placeholder for text output
     if(filePath.files && filePath.files[0]) {
         reader.onload = function (e) {
+            console.log(e)
             var text = e.target.result;
-            setCode(text);
+            setCode("\n"+text);
             $.post({
                 url: parse_url,
                 data: {'text':text},
