@@ -2,11 +2,11 @@
 
 About this project
 -------------------
-This project is based on the Programming Language Theory class COSE212, Fall 2015 by Professor Hakjoo Oh. I implemented an interpreter of a programming language called B with Ocaml in that class as the final project. B language is a small subset of C, which is why it was named so. But, it has a bit of Ocaml's tidy tastes, too. You can find the language's formal syntax and semantics in PLclass_project_info.pdf file.
+This project is based on the Programming Language Theory class COSE212, Fall 2015 by Professor Hakjoo Oh. I implemented an interpreter of a programming language called B in that class as the final project. B language is a small subset of C, which is why it was named so. But, it has a bit of Ocaml's tidy tastes, too. You can find the language's formal syntax and semantics in PLclass_project_info.pdf file.
 
-After a while since I took the class, I decided to do the project once more so that I don't forget what I learned in the class and complete my understanding of programming language interpretation in a formal and abstract way.
+After a while since I took the class, I decided to do the project once more so that I don't forget valuable lessons I learned in the class and complete my understanding of programming languages in general. After all, *a programming language is the most fun thing to program* like somebody called Paul Graham said.
 
-This time, however, I made an special interpreter that visualizes executions of programs written in B while interpreting them and I named it Visual B. Because cognitive ability of human beings is limited you may have a hard time understanding what it is like running a program even if you are an fine programmer. Visual B can help you with this by showing full the execution processes of a program. Visual B is distinguished from a debugger in that it is intended to be used for inspecting a program that is working correctly. It visualizes execution processes within a parse tree, which is a beautiful thing if you understand it. I hope Visual B gives some more insight than a debugger which does mechanical, line by line executions of a program.
+This time, however, I didn't make an ordinary interpreter. I wrote an interpreter that visualizes executions of programs written in B while interpreting them and I named it Visual B. Because cognitive ability of human beings is limited you may have a hard time understanding what it is like running a program even if you are a fine programmer. Actually many people are not even aware that they are not understanding it. Visual B can help you understand B language or programming languages in general by showing full the execution processes of a program. Visual B is distinguished from a debugger in that it is intended to be used for inspecting a program that is working correctly. It visualizes execution processes within a parse tree, which is a beautiful thing if you understand it. I hope Visual B gives some more insight than a debugger which does mechanical, line by line executions of a program.
 
 I switched to JavaScript from Ocaml when writing Visual B not only to tease myself a bit, but also to utilize some rendering libraries written in JavaScript and make it available for web users.
 
@@ -56,7 +56,14 @@ Visualizer and Interpreter
 ------------
 Visualizer and Interpreter were impleneted in Javscript. Javascript have many good visulization libraries and I chose paperjs among them. paperjs goes with the least amount of boilerplate code and allows me the maximum customization. I wanted to intermingle the visulizer and the interpreter in one implemtation and paperjs was the right fit for me.
 
-The visualizing logic is in visual.js file. The Interpreting logic is contained in a separate file named eval_generator.js. To run them, just open visual.html with a browser and choose JSON file generated with the lexer and parser. You can find some example ASTs in JSON in asts directory.
+The visualizing logic is in visual.js file. The Interpreting logic is contained in a separate file named eval_generator.js. To run them you need to run a local server. You can do the following for example
+```
+cd <root_of_this_project>
+python3 -m http.server
+```
+Now open your browser and go to localhost/visual.html and choose any JSON file generated with the lexer and parser. You can find some example ASTs in asts directory of this project.
+
+If you can't follow the instructions, you can simply visit <a href="http://derek-kim.com/static/assets/html/visual.html">my homepage</a>.
 </br>
 
 **Screen shot**
@@ -99,7 +106,7 @@ function traverse1(){
 }
 ```
 
-`traverse1` function traverses each node one by one and changes the focus on the canvas every time it is called. This may not be a totally bad approach, but you needed an extra variable `prev` and an property `cur.cTravCnt` to remember the traverse history. With ultilizing generators, traversing becomes so much easier.
+`traverse1` function traverses each node one by one and changes the focus on the canvas every time it is called. This may not be a totally ugly approach, but you needed an extra variable `prev` and an property `cur.cTravCnt` to remember the traverse history. With ultilizing generators, traversing becomes so much easier.
 
 ```javascript
 function* travMaker(node){
