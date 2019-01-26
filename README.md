@@ -1,5 +1,7 @@
 # B language Visualizer and Interpreter
 
+![](demo.gif)
+
 About this project
 -------------------
 This project is based on the Programming Language Theory class COSE212, Fall 2015 by Professor Hakjoo Oh. I implemented an interpreter of a programming language called B in that class as the final project. B language is a small subset of C, which is why it was named so. But, it has a bit of Ocaml's tidy tastes, too. You can find the language's formal syntax and semantics in plclass_project_info.pdf file.
