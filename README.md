@@ -1,6 +1,9 @@
 # B language Visualizer and Interpreter
 
-![](demo.gif)
+<p align="center">
+  <img src="demo.gif">
+</p>
+
 
 About this project
 -------------------
