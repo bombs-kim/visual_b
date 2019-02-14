@@ -1,4 +1,4 @@
-# B language Visualizer and Interpreter
+# B language Visualizer and Interpreter in javascript
 
 <p align="center">
   <img src="demo.gif">
