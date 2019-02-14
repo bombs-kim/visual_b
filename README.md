@@ -1,4 +1,4 @@
-# B language Visualizer and Interpreter in javascript
+# B language Visualizer and Interpreter in Javascript and OCaml
 
 <p align="center">
   <img src="demo.gif">
